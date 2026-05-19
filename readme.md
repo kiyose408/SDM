@@ -1,4 +1,4 @@
-# 🍳 智能家庭饮食管家 (Smart Family Food Manager)
+# 🍳 智能家庭饮食管家 (SmartDietManager)
 
 > **项目口号**：让饮食规划高效化，让营养搭配科学化，让家庭协作更温馨。
 >

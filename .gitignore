@@ -12,6 +12,7 @@
 build-*
 *_build*
 *.build
+/build
 
 # Compiled Object files
 *.o

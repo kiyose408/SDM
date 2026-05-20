@@ -14,6 +14,8 @@ Page {
 
     property int gender: 0       // 0=未选, 1=男, 2=女
     property int dietGoal: -1    // 0=减脂, 1=增肌, 2=维持
+    signal registrationComplete()
+    signal backToLogin()
 
     RegistrationValidator { id: validator }
     TdeeCalculator { id: tdeeCalculator }
@@ -21,12 +23,30 @@ Page {
 
     background: Rectangle { color: Theme.bgPage }
 
+    // ---- 返回按钮 ----
+    Item {
+        anchors { top: parent.top; topMargin: Theme.spacingSmall; left: parent.left; leftMargin: Theme.spacingSmall }
+        width: backRow.width; height: backRow.height
+
+        Row {
+            id: backRow
+            spacing: 4
+            Icon { name: "arrow_back"; size: 24; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
+            Text { text: "返回登录"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: root.backToLogin()
+        }
+    }
+
     Column {
         anchors {
-            top: parent.top; topMargin: Theme.spacingLarge
+            top: parent.top; topMargin: 40
             left: parent.left; leftMargin: Theme.spacingMedium
             right: parent.right; rightMargin: Theme.spacingMedium
-            bottom: parent.bottom; bottomMargin: 70  // 留给底部按钮
+            bottom: parent.bottom; bottomMargin: 70
         }
         spacing: Theme.spacingMedium
 
@@ -60,6 +80,35 @@ Page {
                         font: parent.font
                         color: Theme.textHint
                         visible: !nicknameInput.text && !nicknameInput.activeFocus
+                    }
+                }
+            }
+        }
+
+        // ---- 密码 ----
+        Rectangle {
+            width: parent.width
+            height: 52
+            radius: Theme.radiusLarge
+            color: Theme.bgCard
+            border { width: 1; color: Theme.borderLight }
+
+            Row {
+                anchors { left: parent.left; leftMargin: Theme.spacingMedium; verticalCenter: parent.verticalCenter }
+                spacing: Theme.spacingSmall
+                Icon { name: "lock"; size: 22; color: Theme.textHint; anchors.verticalCenter: parent.verticalCenter }
+                TextInput {
+                    id: passwordInput
+                    width: parent.parent.width - 80
+                    anchors.verticalCenter: parent.verticalCenter
+                    font.pixelSize: Theme.fontSizeBody
+                    color: Theme.textPrimary
+                    echoMode: TextInput.Password
+                    Text {
+                        text: "请设置登录密码"
+                        font: parent.font
+                        color: Theme.textHint
+                        visible: !passwordInput.text && !passwordInput.activeFocus
                     }
                 }
             }
@@ -129,28 +178,27 @@ Page {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    var result = validator.validate({
+                    var profile = {
                         nickname: nicknameInput.text.trim(),
+                        password: passwordInput.text,
                         height: parseFloat(heightCard.input.text) || 0,
                         weight: parseFloat(weightCard.input.text) || 0,
                         age: parseInt(ageCard.input.text) || 0,
                         gender: root.gender,
                         dietGoal: root.dietGoal
-                    });
+                    };
+                    var result = validator.validate(profile);
                     if (result.valid) {
                         // 调用 AuthService 完成注册
                         var regResult = authService.registerUser(
                             nicknameInput.text.trim(),   // loginId（暂用昵称代替）
-                            "",                           // TODO: 阶段 2.1.4 加密码输入
-                            {
-                                nickname: nicknameInput.text.trim(),
-                                gender: root.gender,
-                                height: parseFloat(heightCard.input.text) || 0,
-                                weight: parseFloat(weightCard.input.text) || 0,
-                                age: parseInt(ageCard.input.text) || 0,
-                                dietGoal: root.dietGoal
-                            });
+                            passwordInput.text,          // 密码
+                            profile                      // 包含 password 的完整信息
+                        );
                         console.log("Register result:", JSON.stringify(regResult));
+                        if (regResult.success) {
+                            root.registrationComplete();
+                        }
                     } else {
                         console.log("Validation errors:", JSON.stringify(result.errors));
                     }

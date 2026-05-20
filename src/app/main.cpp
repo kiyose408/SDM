@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("authService"), authService);
 
     // TODO: 阶段 2 完成后根据登录状态选择加载窗口
-    engine.load(QUrl(QStringLiteral("qrc:/qml/RegisterWindow.qml")));
+    engine.load(QUrl(QStringLiteral("qrc:/qml/LoginWindow.qml")));
     // engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
     if (engine.rootObjects().isEmpty())

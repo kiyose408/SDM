@@ -46,8 +46,20 @@ public:
                                           const QString &password,
                                           const QVariantMap &profile);
 
+    /**
+     * @brief 登录
+     * @param loginId   登录标识
+     * @param password  明文密码
+     * @return { success: bool, userId: "...", nickname: "..." }
+     *
+     * 流程：查用户 → 验密码哈希 → 生成 Token → 返回结果
+     */
+    Q_INVOKABLE QVariantMap login(const QString &loginId,
+                                   const QString &password);
+
 signals:
     void userRegistered(const QString &userId);
+    void userLoggedIn(const QString &userId);
 
 private:
     /// 密码哈希（临时 SHA-256，阶段 2.3 替换为 Argon2id）

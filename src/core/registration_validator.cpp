@@ -47,6 +47,13 @@ QVariantMap RegistrationValidator::validate(const QVariantMap &profile) const
         valid = false;
     }
 
+    // --- 密码 ---
+    const QString password = profile.value(QStringLiteral("password")).toString();
+    if (password.isEmpty()) {
+        errors[QStringLiteral("password")] = QStringLiteral("请设置登录密码");
+        valid = false;
+    }
+
     // --- 饮食目标 ---
     const int dietGoal = profile.value(QStringLiteral("dietGoal"), -1).toInt();
     if (dietGoal < 0 || dietGoal > 2) {

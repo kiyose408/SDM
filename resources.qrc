@@ -9,6 +9,9 @@
         <file alias="Icon.qml">src/ui/components/Icon.qml</file>
         <file alias="RegisterPage.qml">src/ui/qml/RegisterPage.qml</file>
         <file alias="RegisterWindow.qml">src/ui/qml/RegisterWindow.qml</file>
+        <file alias="LoginPage.qml">src/ui/qml/LoginPage.qml</file>
+        <file alias="LoginWindow.qml">src/ui/qml/LoginWindow.qml</file>
+
         <file alias="BodyDataCard.qml">src/ui/components/BodyDataCard.qml</file>
         <file alias="GenderButton.qml">src/ui/components/GenderButton.qml</file>
         <file alias="GoalCard.qml">src/ui/components/GoalCard.qml</file>

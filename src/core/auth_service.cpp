@@ -95,6 +95,42 @@ QVariantMap AuthService::registerUser(const QString &loginId,
     return result;
 }
 
+QVariantMap AuthService::login(const QString &loginId,
+                                  const QString &password)
+{
+    QVariantMap result;
+
+    // --- 1. 查找用户 ---
+    const auto userOpt = userRepo_->getByLoginId(loginId);
+    if (!userOpt.has_value()) {
+        result[QStringLiteral("success")] = false;
+        result[QStringLiteral("error")]   = QStringLiteral("账号不存在");
+        emit errorOccurred(QStringLiteral("账号不存在"), 1001);
+        return result;
+    }
+
+    const User &user = userOpt.value();
+
+    // --- 2. 验证密码 ---
+    const QString hashed = hashPassword(password);
+    if (hashed != user.password_hash) {
+        result[QStringLiteral("success")] = false;
+        result[QStringLiteral("error")]   = QStringLiteral("密码错误");
+        emit errorOccurred(QStringLiteral("密码错误"), 1001);
+        return result;
+    }
+
+    // --- 3. 成功 ---
+    result[QStringLiteral("success")]  = true;
+    result[QStringLiteral("userId")]   = user.id;
+    result[QStringLiteral("nickname")] = user.nickname;
+
+    qDebug() << "[AuthService] User logged in:" << user.id << user.nickname;
+    emit userLoggedIn(user.id);
+    emit operationCompleted(QStringLiteral("登录成功"));
+    return result;
+}
+
 QString AuthService::hashPassword(const QString &plainText) const
 {
     // TODO: 阶段 2.3 替换为 Argon2id（安全设计文档 v1.0 推荐算法）

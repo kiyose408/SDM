@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import SmartDiet.Style 1.0
+import SmartDiet.Core 1.0
 
 /**
  * @brief 注册 Step 1 — 个人档案建立
@@ -13,6 +14,8 @@ Page {
 
     property int gender: 0       // 0=未选, 1=男, 2=女
     property int dietGoal: -1    // 0=减脂, 1=增肌, 2=维持
+
+    RegistrationValidator { id: validator }
 
     background: Rectangle { color: Theme.bgPage }
 
@@ -123,7 +126,21 @@ Page {
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: console.log("Register Step 1 → next")
+                onClicked: {
+                    var result = validator.validate({
+                        nickname: nicknameInput.text.trim(),
+                        height: parseFloat(heightCard.input.text) || 0,
+                        weight: parseFloat(weightCard.input.text) || 0,
+                        age: parseInt(ageCard.input.text) || 0,
+                        gender: root.gender,
+                        dietGoal: root.dietGoal
+                    });
+                    if (result.valid) {
+                        console.log("Register Step 1 → valid, goto Step 2");
+                    } else {
+                        console.log("Validation errors:", JSON.stringify(result.errors));
+                    }
+                }
             }
         }
     }

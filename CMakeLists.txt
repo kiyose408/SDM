@@ -31,6 +31,9 @@ set(PROJECT_SOURCES
     src/utils/uuid_utils.h
     src/utils/time_utils.h
     src/data/orm_helper.h
+    src/data/user_entity.h
+    src/data/user_repository.h
+    src/data/user_repository.cpp
     resources/translations/SmartDietManager_zh_CN.ts
     resources.qrc
 )

@@ -14,8 +14,10 @@ Page {
 
     property int gender: 0       // 0=未选, 1=男, 2=女
     property int dietGoal: -1    // 0=减脂, 1=增肌, 2=维持
+    property var registerData: ({})
     signal registrationComplete()
     signal backToLogin()
+    signal nextStep()
 
     RegistrationValidator { id: validator }
     TdeeCalculator { id: tdeeCalculator }
@@ -189,16 +191,17 @@ Page {
                     };
                     var result = validator.validate(profile);
                     if (result.valid) {
-                        // 调用 AuthService 完成注册
-                        var regResult = authService.registerUser(
-                            nicknameInput.text.trim(),   // loginId（暂用昵称代替）
-                            passwordInput.text,          // 密码
-                            profile                      // 包含 password 的完整信息
-                        );
-                        console.log("Register result:", JSON.stringify(regResult));
-                        if (regResult.success) {
-                            root.registrationComplete();
-                        }
+                        // 保存 Step 1 数据到全局，进入 Step 2
+                        registerData = {
+                            nickname: nicknameInput.text.trim(),
+                            password: passwordInput.text,
+                            height: parseFloat(heightCard.input.text) || 0,
+                            weight: parseFloat(weightCard.input.text) || 0,
+                            age: parseInt(ageCard.input.text) || 0,
+                            gender: root.gender,
+                            dietGoal: root.dietGoal
+                        };
+                        root.nextStep();
                     } else {
                         console.log("Validation errors:", JSON.stringify(result.errors));
                     }

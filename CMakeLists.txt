@@ -51,6 +51,8 @@ set(PROJECT_SOURCES
     src/core/auth_service.cpp
     src/core/session_manager.h
     src/core/session_manager.cpp
+    src/core/family_service.h
+    src/core/family_service.cpp
     src/data/base_repository.h
     src/data/database_manager.h
     src/data/database_manager.cpp

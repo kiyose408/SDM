@@ -11,6 +11,9 @@
 #include "core/session_manager.h"
 #include "data/database_manager.h"
 #include "data/user_repository.h"
+#include "data/family_repository.h"
+#include "data/family_member_repository.h"
+#include "core/family_service.h"
 
 int main(int argc, char *argv[])
 {
@@ -41,6 +44,10 @@ int main(int argc, char *argv[])
     auto *authService = new smart_diet::AuthService(userRepo, &app);
     auto *session     = new smart_diet::SessionManager(&app);
 
+    auto *familyRepo       = new smart_diet::FamilyRepository(&app);
+    auto *familyMemberRepo = new smart_diet::FamilyMemberRepository(&app);
+    auto *familyService    = new smart_diet::FamilyService(familyRepo, familyMemberRepo, &app);
+
     QObject::connect(authService, &smart_diet::AuthService::userLoggedIn,
                      session, [session](const QString &userId) {
                          session->setSession(userId, QString());
@@ -48,6 +55,7 @@ int main(int argc, char *argv[])
 
     engine.rootContext()->setContextProperty(QStringLiteral("authService"), authService);
     engine.rootContext()->setContextProperty(QStringLiteral("session"), session);
+    engine.rootContext()->setContextProperty(QStringLiteral("familyService"), familyService);
 
     // ================================================================
     // 登录成功后 → 关闭认证窗口 → 加载主界面
@@ -71,7 +79,9 @@ int main(int argc, char *argv[])
     if (session->restoreSession()) {
         engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
     } else {
-        engine.load(QUrl(QStringLiteral("qrc:/qml/LoginWindow.qml")));
+        // TODO: 改回 LoginWindow
+        engine.load(QUrl(QStringLiteral("qrc:/qml/RegisterWindow.qml")));
+        // engine.load(QUrl(QStringLiteral("qrc:/qml/LoginWindow.qml")));
     }
 
     if (engine.rootObjects().isEmpty())

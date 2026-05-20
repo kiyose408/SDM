@@ -9,6 +9,7 @@
         <file alias="Icon.qml">src/ui/components/Icon.qml</file>
         <file alias="RegisterPage.qml">src/ui/qml/RegisterPage.qml</file>
         <file alias="RegisterWindow.qml">src/ui/qml/RegisterWindow.qml</file>
+        <file alias="FamilySetupPage.qml">src/ui/qml/FamilySetupPage.qml</file>
         <file alias="LoginPage.qml">src/ui/qml/LoginPage.qml</file>
         <file alias="LoginWindow.qml">src/ui/qml/LoginWindow.qml</file>
 

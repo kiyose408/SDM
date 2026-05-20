@@ -12,6 +12,14 @@ ApplicationWindow {
     color: Theme.bgPage
 
     // ================================================================
+    // Icon Font 加载（全局，所有 Icon 组件共享）
+    // ================================================================
+    FontLoader {
+        id: iconFontLoader
+        source: "qrc:/fonts/MaterialIconsOutlined.otf"
+    }
+
+    // ================================================================
     // 页面栈（主内容区）
     // ================================================================
     StackView {
@@ -39,20 +47,36 @@ ApplicationWindow {
         }
 
         TabButton {
-            text: "🏠\n首页"
-            font.pixelSize: Theme.fontSizeSmall
+            contentItem: Column {
+                spacing: 2
+                anchors.centerIn: parent
+                Icon { name: "home"; size: 22; anchors.horizontalCenter: parent.horizontalCenter }
+                Text { text: "首页"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textPrimary; anchors.horizontalCenter: parent.horizontalCenter }
+            }
         }
         TabButton {
-            text: "🧊\n冰箱"
-            font.pixelSize: Theme.fontSizeSmall
+            contentItem: Column {
+                spacing: 2
+                anchors.centerIn: parent
+                Icon { name: "kitchen"; size: 22; anchors.horizontalCenter: parent.horizontalCenter }
+                Text { text: "冰箱"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textPrimary; anchors.horizontalCenter: parent.horizontalCenter }
+            }
         }
         TabButton {
-            text: "📖\n菜谱"
-            font.pixelSize: Theme.fontSizeSmall
+            contentItem: Column {
+                spacing: 2
+                anchors.centerIn: parent
+                Icon { name: "menu_book"; size: 22; anchors.horizontalCenter: parent.horizontalCenter }
+                Text { text: "菜谱"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textPrimary; anchors.horizontalCenter: parent.horizontalCenter }
+            }
         }
         TabButton {
-            text: "👤\n我的"
-            font.pixelSize: Theme.fontSizeSmall
+            contentItem: Column {
+                spacing: 2
+                anchors.centerIn: parent
+                Icon { name: "person"; size: 22; anchors.horizontalCenter: parent.horizontalCenter }
+                Text { text: "我的"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textPrimary; anchors.horizontalCenter: parent.horizontalCenter }
+            }
         }
 
         onCurrentIndexChanged: {

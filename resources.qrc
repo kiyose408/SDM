@@ -6,8 +6,12 @@
         <file alias="RecipesPage.qml">src/ui/qml/RecipesPage.qml</file>
         <file alias="ProfilePage.qml">src/ui/qml/ProfilePage.qml</file>
         <file alias="styles/Theme.qml">src/ui/styles/Theme.qml</file>
+        <file alias="Icon.qml">src/ui/components/Icon.qml</file>
     </qresource>
     <qresource prefix="/schema">
         <file alias="sqlite_schema.sql">resources/schema/sqlite_schema.sql</file>
+    </qresource>
+    <qresource prefix="/fonts">
+        <file alias="MaterialIconsOutlined.otf">resources/fonts/MaterialIconsOutlined.otf</file>
     </qresource>
 </RCC>

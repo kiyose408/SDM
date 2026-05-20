@@ -10,11 +10,22 @@ Page {
         anchors.fill: parent
         color: Theme.bgPage
 
-        Text {
+        Column {
             anchors.centerIn: parent
-            text: "📖 菜谱与食材"
-            font.pixelSize: Theme.fontSizeTitle
-            color: Theme.textPrimary
+            spacing: Theme.spacingMedium
+
+            Icon {
+                name: "menu_book"
+                size: 48
+                color: Theme.primary
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+            Text {
+                text: "菜谱与食材"
+                font.pixelSize: Theme.fontSizeTitle
+                color: Theme.textPrimary
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
         }
     }
 }

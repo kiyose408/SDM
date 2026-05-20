@@ -62,9 +62,6 @@ signals:
     void userLoggedIn(const QString &userId);
 
 private:
-    /// 密码哈希（临时 SHA-256，阶段 2.3 替换为 Argon2id）
-    QString hashPassword(const QString &plainText) const;
-
     UserRepository       *userRepo_ = nullptr;
     RegistrationValidator *validator_ = nullptr;
     TdeeCalculator        *tdeeCalc_  = nullptr;

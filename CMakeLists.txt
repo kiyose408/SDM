@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(SmartDietManager VERSION 0.1 LANGUAGES CXX)
+project(SmartDietManager VERSION 0.1 LANGUAGES C CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -8,6 +8,26 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# ================================================================
+# Argon2 密码哈希库（third_party）
+# ================================================================
+set(ARGON2_SOURCES
+    third_party/argon2/argon2.c
+    third_party/argon2/core.c
+    third_party/argon2/blake2/blake2b.c
+    third_party/argon2/encoding.c
+    third_party/argon2/thread.c
+    third_party/argon2/ref.c
+)
+add_library(argon2 STATIC ${ARGON2_SOURCES})
+target_include_directories(argon2 PUBLIC
+    third_party/argon2
+    third_party/argon2/blake2
+)
+if(MSVC)
+    target_compile_definitions(argon2 PRIVATE _CRT_SECURE_NO_WARNINGS)
+endif()
 
 # MSVC 环境下强制使用 msvc2022_64 版本的 Qt（避免误用 mingw_64 导致 ABI 不兼容）
 if(MSVC)
@@ -38,6 +58,8 @@ set(PROJECT_SOURCES
     src/utils/constants.h
     src/utils/uuid_utils.h
     src/utils/time_utils.h
+    src/utils/argon2_hasher.h
+    src/utils/argon2_hasher.cpp
     src/data/orm_helper.h
     src/data/user_entity.h
     src/data/user_repository.h
@@ -76,7 +98,7 @@ else()
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
-target_link_libraries(SmartDietManager PRIVATE
+target_link_libraries(SmartDietManager PRIVATE argon2
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Quick
     Qt${QT_VERSION_MAJOR}::QuickControls2

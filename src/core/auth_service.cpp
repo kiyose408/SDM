@@ -6,6 +6,7 @@
 #include "utils/uuid_utils.h"
 #include "utils/time_utils.h"
 
+#include "utils/argon2_hasher.h"
 #include <QCryptographicHash>
 #include <QDebug>
 
@@ -70,7 +71,7 @@ QVariantMap AuthService::registerUser(const QString &loginId,
     }
     user.bmr           = bmr;
     user.tdee          = goalTdee;
-    user.password_hash = hashPassword(password);
+    user.password_hash = Argon2Hasher::hash(password);
     user.created_at    = utcNow();
     user.updated_at    = user.created_at;
 
@@ -112,8 +113,26 @@ QVariantMap AuthService::login(const QString &loginId,
     const User &user = userOpt.value();
 
     // --- 2. 验证密码 ---
-    const QString hashed = hashPassword(password);
-    if (hashed != user.password_hash) {
+    bool passwordOk = false;
+
+    // 兼容旧 SHA-256 密码（$argon2id$ 前缀即新格式）
+    if (user.password_hash.startsWith(QStringLiteral("$argon2id$"))) {
+        passwordOk = Argon2Hasher::verify(password, user.password_hash);
+    } else {
+        // 旧格式：SHA-256 hex 字符串
+        const QString oldHash = QString::fromUtf8(
+            QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha256).toHex());
+        passwordOk = (oldHash == user.password_hash);
+        if (passwordOk) {
+            // 自动升级为 Argon2id
+            User updated = user;
+            updated.password_hash = Argon2Hasher::hash(password);
+            userRepo_->update(updated);
+            qDebug() << "[AuthService] Upgraded password to Argon2id for:" << user.id;
+        }
+    }
+
+    if (!passwordOk) {
         result[QStringLiteral("success")] = false;
         result[QStringLiteral("error")]   = QStringLiteral("密码错误");
         emit errorOccurred(QStringLiteral("密码错误"), 1001);
@@ -129,15 +148,6 @@ QVariantMap AuthService::login(const QString &loginId,
     emit userLoggedIn(user.id);
     emit operationCompleted(QStringLiteral("登录成功"));
     return result;
-}
-
-QString AuthService::hashPassword(const QString &plainText) const
-{
-    // TODO: 阶段 2.3 替换为 Argon2id（安全设计文档 v1.0 推荐算法）
-    return QString::fromUtf8(
-        QCryptographicHash::hash(
-            plainText.toUtf8(),
-            QCryptographicHash::Sha256).toHex());
 }
 
 } // namespace smart_diet

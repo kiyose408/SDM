@@ -150,4 +150,49 @@ QVariantMap AuthService::login(const QString &loginId,
     return result;
 }
 
+QVariantMap AuthService::resetPassword(const QString &loginId,
+                                         const QString &oldPassword,
+                                         const QString &newPassword)
+{
+    QVariantMap result;
+
+    const auto userOpt = userRepo_->getByLoginId(loginId);
+    if (!userOpt.has_value()) {
+        result[QStringLiteral("success")] = false;
+        result[QStringLiteral("error")]   = QStringLiteral("账号不存在");
+        return result;
+    }
+
+    User user = userOpt.value();
+
+    // 验证旧密码
+    bool oldPasswordOk = false;
+    if (user.password_hash.startsWith(QStringLiteral("$argon2id$"))) {
+        oldPasswordOk = Argon2Hasher::verify(oldPassword, user.password_hash);
+    } else {
+        const QString oldHash = QString::fromUtf8(
+            QCryptographicHash::hash(oldPassword.toUtf8(), QCryptographicHash::Sha256).toHex());
+        oldPasswordOk = (oldHash == user.password_hash);
+    }
+
+    if (!oldPasswordOk) {
+        result[QStringLiteral("success")] = false;
+        result[QStringLiteral("error")]   = QStringLiteral("旧密码错误");
+        return result;
+    }
+
+    user.password_hash = Argon2Hasher::hash(newPassword);
+    user.updated_at = utcNow();
+
+    if (!userRepo_->update(user)) {
+        result[QStringLiteral("success")] = false;
+        result[QStringLiteral("error")]   = QStringLiteral("修改密码失败");
+        return result;
+    }
+
+    result[QStringLiteral("success")] = true;
+    emit operationCompleted(QStringLiteral("密码已修改"));
+    return result;
+}
+
 } // namespace smart_diet

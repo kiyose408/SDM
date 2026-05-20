@@ -57,6 +57,20 @@ public:
     Q_INVOKABLE QVariantMap login(const QString &loginId,
                                    const QString &password);
 
+    /**
+     * @brief 修改密码（需验证旧密码）
+     * @param loginId      登录标识
+     * @param oldPassword  旧密码（验证身份）
+     * @param newPassword  新密码
+     * @return { success: bool, error: "..." }
+     *
+     * 安全约束：必须提供旧密码才能修改，防止未授权篡改。
+     * "忘记密码"远程重置留到阶段 8 服务端上线后实现。
+     */
+    Q_INVOKABLE QVariantMap resetPassword(const QString &loginId,
+                                           const QString &oldPassword,
+                                           const QString &newPassword);
+
 signals:
     void userRegistered(const QString &userId);
     void userLoggedIn(const QString &userId);

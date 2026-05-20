@@ -28,6 +28,9 @@ set(PROJECT_SOURCES
     src/data/database_manager.cpp
     src/network/sync_manager.h
     src/utils/constants.h
+    src/utils/uuid_utils.h
+    src/utils/time_utils.h
+    src/data/orm_helper.h
     resources/translations/SmartDietManager_zh_CN.ts
     resources.qrc
 )

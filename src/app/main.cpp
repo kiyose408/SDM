@@ -79,9 +79,7 @@ int main(int argc, char *argv[])
     if (session->restoreSession()) {
         engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
     } else {
-        // TODO: 改回 LoginWindow
-        engine.load(QUrl(QStringLiteral("qrc:/qml/RegisterWindow.qml")));
-        // engine.load(QUrl(QStringLiteral("qrc:/qml/LoginWindow.qml")));
+        engine.load(QUrl(QStringLiteral("qrc:/qml/LoginWindow.qml")));
     }
 
     if (engine.rootObjects().isEmpty())

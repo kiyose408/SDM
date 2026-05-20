@@ -1,6 +1,10 @@
 <RCC>
     <qresource prefix="/qml">
         <file alias="main.qml">src/ui/qml/main.qml</file>
+        <file alias="HomePage.qml">src/ui/qml/HomePage.qml</file>
+        <file alias="FridgePage.qml">src/ui/qml/FridgePage.qml</file>
+        <file alias="RecipesPage.qml">src/ui/qml/RecipesPage.qml</file>
+        <file alias="ProfilePage.qml">src/ui/qml/ProfilePage.qml</file>
         <file alias="styles/Theme.qml">src/ui/styles/Theme.qml</file>
     </qresource>
     <qresource prefix="/schema">

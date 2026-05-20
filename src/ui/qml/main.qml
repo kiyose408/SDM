@@ -11,10 +11,9 @@ ApplicationWindow {
     title: "SmartDietManager"
     color: Theme.bgPage
 
-    Text {
-        anchors.centerIn: parent
-        text: "🥗 SmartDietManager"
-        font.pixelSize: Theme.fontSizeLarge
-        color: Theme.textPrimary
+    StackView {
+        id: navStack
+        anchors.fill: parent
+        initialItem: HomePage {}
     }
 }

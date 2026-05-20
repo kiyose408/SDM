@@ -17,6 +17,7 @@ Page {
 
     RegistrationValidator { id: validator }
     TdeeCalculator { id: tdeeCalculator }
+    // authService 通过 main.cpp 的 setContextProperty 注入
 
     background: Rectangle { color: Theme.bgPage }
 
@@ -137,15 +138,19 @@ Page {
                         dietGoal: root.dietGoal
                     });
                     if (result.valid) {
-                        var bmr = tdeeCalculator.calculateBmr(
-                            root.gender,
-                            parseFloat(weightCard.input.text) || 0,
-                            parseFloat(heightCard.input.text) || 0,
-                            parseInt(ageCard.input.text) || 0);
-                        var tdee = tdeeCalculator.calculateTdee(bmr);
-                        var goalTdee = tdeeCalculator.applyDietGoal(tdee, root.dietGoal);
-                        console.log("BMR:", bmr.toFixed(0), "TDEE:", tdee.toFixed(0),
-                                    "目标 TDEE:", goalTdee.toFixed(0), "kcal/day");
+                        // 调用 AuthService 完成注册
+                        var regResult = authService.registerUser(
+                            nicknameInput.text.trim(),   // loginId（暂用昵称代替）
+                            "",                           // TODO: 阶段 2.1.4 加密码输入
+                            {
+                                nickname: nicknameInput.text.trim(),
+                                gender: root.gender,
+                                height: parseFloat(heightCard.input.text) || 0,
+                                weight: parseFloat(weightCard.input.text) || 0,
+                                age: parseInt(ageCard.input.text) || 0,
+                                dietGoal: root.dietGoal
+                            });
+                        console.log("Register result:", JSON.stringify(regResult));
                     } else {
                         console.log("Validation errors:", JSON.stringify(result.errors));
                     }

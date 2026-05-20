@@ -149,8 +149,18 @@ bool DatabaseManager::executeSqlFile(const QString &qrcPath) {
 
     for (const QString &raw : statements) {
         const QString trimmed = raw.trimmed();
-        // 跳过纯注释块和空语句
-        if (trimmed.isEmpty() || trimmed.startsWith(QLatin1String("--")))
+        // 跳过空语句块
+        if (trimmed.isEmpty())
+            continue;
+
+        // 跳过纯注释块（去掉所有 -- 行后无实际 SQL 内容）
+        QStringList lines = trimmed.split(QLatin1Char('\n'), Qt::SkipEmptyParts);
+        QStringList sqlLines;
+        for (const QString &line : lines) {
+            if (!line.trimmed().startsWith(QLatin1String("--")))
+                sqlLines.append(line);
+        }
+        if (sqlLines.isEmpty())
             continue;
 
         QSqlQuery query(db);

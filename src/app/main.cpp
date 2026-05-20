@@ -3,6 +3,7 @@
 #include <QLocale>
 #include <QTranslator>
 #include "core/registration_validator.h"
+#include "core/tdee_calculator.h"
 
 int main(int argc, char *argv[])
 {
@@ -23,6 +24,8 @@ int main(int argc, char *argv[])
     // 注册 C++ 类型到 QML
     qmlRegisterType<smart_diet::RegistrationValidator>(
         "SmartDiet.Core", 1, 0, "RegistrationValidator");
+    qmlRegisterType<smart_diet::TdeeCalculator>(
+        "SmartDiet.Core", 1, 0, "TdeeCalculator");
 
     // 注册全局主题单例：QML 端通过 import SmartDiet.Style 1.0 访问 Theme
     qmlRegisterSingletonType(QUrl(QStringLiteral("qrc:/qml/styles/Theme.qml")),

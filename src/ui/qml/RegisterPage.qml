@@ -16,6 +16,7 @@ Page {
     property int dietGoal: -1    // 0=减脂, 1=增肌, 2=维持
 
     RegistrationValidator { id: validator }
+    TdeeCalculator { id: tdeeCalculator }
 
     background: Rectangle { color: Theme.bgPage }
 
@@ -136,7 +137,15 @@ Page {
                         dietGoal: root.dietGoal
                     });
                     if (result.valid) {
-                        console.log("Register Step 1 → valid, goto Step 2");
+                        var bmr = tdeeCalculator.calculateBmr(
+                            root.gender,
+                            parseFloat(weightCard.input.text) || 0,
+                            parseFloat(heightCard.input.text) || 0,
+                            parseInt(ageCard.input.text) || 0);
+                        var tdee = tdeeCalculator.calculateTdee(bmr);
+                        var goalTdee = tdeeCalculator.applyDietGoal(tdee, root.dietGoal);
+                        console.log("BMR:", bmr.toFixed(0), "TDEE:", tdee.toFixed(0),
+                                    "目标 TDEE:", goalTdee.toFixed(0), "kcal/day");
                     } else {
                         console.log("Validation errors:", JSON.stringify(result.errors));
                     }

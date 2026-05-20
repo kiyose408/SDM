@@ -25,6 +25,8 @@ set(PROJECT_SOURCES
     src/core/base_service.h
     src/core/registration_validator.h
     src/core/registration_validator.cpp
+    src/core/tdee_calculator.h
+    src/core/tdee_calculator.cpp
     src/data/base_repository.h
     src/data/database_manager.h
     src/data/database_manager.cpp

@@ -21,14 +21,11 @@ Text {
     /// 图标大小（像素），默认继承 Theme.fontSizeTitle
     property real size: Theme.fontSizeTitle
 
-    /// 图标颜色，默认继承 Theme.textPrimary
-    property color color: Theme.textPrimary
-
-    // 渲染
+    // 渲染（color 使用 Text 内置属性，默认 Theme.textPrimary，调用方可覆盖）
     text: name
     font.family: "Material Icons Outlined"
     font.pixelSize: size
-    color: root.color
+    color: Theme.textPrimary
 
     horizontalAlignment: Text.AlignHCenter
     verticalAlignment: Text.AlignVCenter

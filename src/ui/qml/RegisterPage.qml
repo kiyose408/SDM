@@ -15,6 +15,7 @@ Page {
     property int gender: 0       // 0=未选, 1=男, 2=女
     property int dietGoal: -1    // 0=减脂, 1=增肌, 2=维持
     property var registerData: ({})
+    property string errorText: ""
     signal registrationComplete()
     signal backToLogin()
     signal nextStep()
@@ -138,6 +139,17 @@ Page {
                 text: "女生"; value: 2; selected: root.gender === 2
                 onClicked: function(v) { root.gender = v }
             }
+        }
+
+        // ---- 错误反馈 ----
+        Text {
+            visible: root.errorText !== ""
+            text: root.errorText
+            width: parent.width
+            font.pixelSize: Theme.fontSizeSmall
+            color: Theme.danger
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
         }
 
         // ---- 饮食目标 ----

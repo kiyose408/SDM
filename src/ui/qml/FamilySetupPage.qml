@@ -15,6 +15,7 @@ Page {
     signal familyJoined()
     signal backToStep1()
     property string userId: ""
+    property bool registrationMode: true  // true=注册流程, false=独立使用
 
     property alias createResult: createResult
 
@@ -27,18 +28,28 @@ Page {
         Row {
             id: backRow; spacing: 4
             Icon { name: "arrow_back"; size: 24; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
-            Text { text: "上一步"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
+            Text {
+                text: root.registrationMode ? "上一步" : "返回"
+                font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter
+            }
         }
-        MouseArea { anchors.fill: parent; onClicked: root.backToStep1() }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                if (root.registrationMode) root.backToStep1()
+                else navStack.pop()
+            }
+        }
     }
 
     Column {
         anchors { top: parent.top; topMargin: 60; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium; bottom: parent.bottom; bottomMargin: Theme.spacingMedium }
         spacing: Theme.spacingMedium
 
-        // ---- 进度 ----
+        // ---- 进度（仅注册模式） ----
         Column {
             anchors.horizontalCenter: parent.horizontalCenter
+            visible: root.registrationMode
             Text { text: "2/2"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint; anchors.horizontalCenter: parent.horizontalCenter }
             Text { text: "创建或加入你的家庭小组"; font.pixelSize: Theme.fontSizeTitle; color: Theme.textPrimary; anchors.horizontalCenter: parent.horizontalCenter }
         }

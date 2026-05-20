@@ -36,6 +36,28 @@ public:
     Q_INVOKABLE QVariantMap joinFamily(const QString &userId,
                                         const QString &inviteCode);
 
+    /// 获取用户所属家庭列表
+    Q_INVOKABLE QVariantList getUserFamilies(const QString &userId);
+
+    /// 获取家庭成员列表
+    Q_INVOKABLE QVariantList getMembers(const QString &familyId);
+
+    /// 修改成员权限
+    Q_INVOKABLE bool setMemberPermissions(const QString &familyId,
+                                           const QString &userId,
+                                           bool canManageInventory,
+                                           bool canConfirmMenu);
+
+    /// 移除成员（仅户主可用）
+    Q_INVOKABLE bool removeMember(const QString &familyId,
+                                   const QString &userId,
+                                   const QString &operatorId);
+
+    /// 转移户主权
+    Q_INVOKABLE QVariantMap transferOwnership(const QString &familyId,
+                                               const QString &currentOwnerId,
+                                               const QString &newOwnerId);
+
 signals:
     void familyCreated(const QString &familyId);
     void familyJoined(const QString &familyId, const QString &userId);

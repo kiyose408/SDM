@@ -22,6 +22,9 @@ ApplicationWindow {
     // ================================================================
     // 页面栈（主内容区）
     // ================================================================
+    // 全局导航栈引用
+    property alias navStack: navStack
+
     StackView {
         id: navStack
         anchors.fill: parent

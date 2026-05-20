@@ -24,6 +24,8 @@ public:
     QList<FamilyMember> getByUser(const QString &userId);
     /// 查找特定关系
     std::optional<FamilyMember> getRelation(const QString &familyId, const QString &userId);
+    /// 数据库句柄（供 Service 层直接执行 SQL）
+    QSqlDatabase database() const { return db_; }
 
 signals:
     void memberAdded(const QString &familyId, const QString &userId);

@@ -16,36 +16,21 @@ ApplicationWindow {
     LoginPage {
         anchors.fill: parent
         onNavigateToRegister: {
-            registerWindow.show()
-            root.hide()
+            var comp = Qt.createComponent("qrc:/qml/RegisterWindow.qml")
+            if (comp.status === Component.Ready) {
+                var w = comp.createObject(root)
+                if (w) {
+                    w.onClosing.connect(function() { root.show() })
+                    root.hide()
+                    w.show()
+                }
+            } else {
+                console.log("Failed to load RegisterWindow:", comp.errorString())
+            }
         }
         onLoggedIn: {
             // C++ 侧 session::loggedIn 信号会关闭本窗口并加载 main.qml
         }
     }
 
-    // 注册子窗口（独立 Window，初始隐藏）
-    Window {
-        id: registerWindow
-        width: 420
-        height: 680
-        visible: false
-        title: "SmartDietManager - 注册"
-        color: Theme.bgPage
-        flags: Qt.Dialog
-
-        FontLoader { source: "qrc:/fonts/MaterialIconsOutlined.otf" }
-
-        RegisterPage {
-            anchors.fill: parent
-            onBackToLogin: {
-                registerWindow.hide()
-                root.show()
-            }
-            onRegistrationComplete: {
-                registerWindow.hide()
-                root.show()
-            }
-        }
-    }
 }

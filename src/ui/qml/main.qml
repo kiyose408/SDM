@@ -90,8 +90,8 @@ ApplicationWindow {
     // ================================================================
     readonly property var pages: [homePage, fridgePage, recipesPage, profilePage]
 
-    HomePage    { id: homePage    }
-    FridgePage  { id: fridgePage  }
-    RecipesPage { id: recipesPage }
-    ProfilePage { id: profilePage }
+    HomePage    { id: homePage;    visible: false }
+    FridgePage  { id: fridgePage;  visible: false }
+    RecipesPage { id: recipesPage; visible: false }
+    ProfilePage { id: profilePage; visible: false }
 }

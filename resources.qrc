@@ -7,6 +7,11 @@
         <file alias="ProfilePage.qml">src/ui/qml/ProfilePage.qml</file>
         <file alias="styles/Theme.qml">src/ui/styles/Theme.qml</file>
         <file alias="Icon.qml">src/ui/components/Icon.qml</file>
+        <file alias="RegisterPage.qml">src/ui/qml/RegisterPage.qml</file>
+        <file alias="RegisterWindow.qml">src/ui/qml/RegisterWindow.qml</file>
+        <file alias="BodyDataCard.qml">src/ui/components/BodyDataCard.qml</file>
+        <file alias="GenderButton.qml">src/ui/components/GenderButton.qml</file>
+        <file alias="GoalCard.qml">src/ui/components/GoalCard.qml</file>
     </qresource>
     <qresource prefix="/schema">
         <file alias="sqlite_schema.sql">resources/schema/sqlite_schema.sql</file>

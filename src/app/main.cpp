@@ -23,7 +23,9 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonType(QUrl(QStringLiteral("qrc:/qml/styles/Theme.qml")),
                               "SmartDiet.Style", 1, 0, "Theme");
 
-    engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
+    // TODO: 阶段 2 完成后根据登录状态选择加载窗口
+    engine.load(QUrl(QStringLiteral("qrc:/qml/RegisterWindow.qml")));
+    // engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
     if (engine.rootObjects().isEmpty())
         return -1;

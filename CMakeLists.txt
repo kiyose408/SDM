@@ -24,6 +24,8 @@ set(PROJECT_SOURCES
     src/app/main.cpp
     src/core/base_service.h
     src/data/base_repository.h
+    src/data/database_manager.h
+    src/data/database_manager.cpp
     src/network/sync_manager.h
     src/utils/constants.h
     resources/translations/SmartDietManager_zh_CN.ts

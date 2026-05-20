@@ -8,7 +8,8 @@
 *.njsproj
 *.sln
 
-/study
+# 学习笔记（本地自主学习，不上传仓库）
+docs/study/
 # Build Folders
 build-*
 *_build*

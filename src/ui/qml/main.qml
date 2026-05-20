@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Window
+import SmartDiet.Style 1.0
 
 ApplicationWindow {
     id: root
@@ -8,13 +9,12 @@ ApplicationWindow {
     height: 600
     visible: true
     title: "SmartDietManager"
-    color: "#F5F5F5"
+    color: Theme.bgPage
 
-    // Placeholder — will be replaced by real navigation in Task 1.4
     Text {
         anchors.centerIn: parent
         text: "🥗 SmartDietManager"
-        font.pixelSize: 24
-        color: "#333333"
+        font.pixelSize: Theme.fontSizeLarge
+        color: Theme.textPrimary
     }
 }

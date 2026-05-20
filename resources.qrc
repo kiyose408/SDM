@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/qml">
         <file alias="main.qml">src/ui/qml/main.qml</file>
+        <file alias="styles/Theme.qml">src/ui/styles/Theme.qml</file>
     </qresource>
     <qresource prefix="/schema">
         <file alias="sqlite_schema.sql">resources/schema/sqlite_schema.sql</file>

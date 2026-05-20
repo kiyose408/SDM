@@ -18,6 +18,11 @@ int main(int argc, char *argv[])
     }
 
     QQmlApplicationEngine engine;
+
+    // 注册全局主题单例：QML 端通过 import SmartDiet.Style 1.0 访问 Theme
+    qmlRegisterSingletonType(QUrl(QStringLiteral("qrc:/qml/styles/Theme.qml")),
+                              "SmartDiet.Style", 1, 0, "Theme");
+
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
     if (engine.rootObjects().isEmpty())

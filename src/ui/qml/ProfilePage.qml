@@ -28,4 +28,31 @@ Page {
             }
         }
     }
+
+    // 底部登出按钮
+    Rectangle {
+        anchors { bottom: parent.bottom; left: parent.left; right: parent.right }
+        height: 60
+        color: Theme.bgCard
+
+        Rectangle {
+            anchors { top: parent.top; left: parent.left; right: parent.right }
+            height: 1; color: Theme.borderLight
+        }
+
+        Row {
+            anchors.centerIn: parent
+            spacing: Theme.spacingSmall
+            Icon { name: "logout"; size: 22; color: Theme.danger; anchors.verticalCenter: parent.verticalCenter }
+            Text { text: "退出登录"; font.pixelSize: Theme.fontSizeBody; color: Theme.danger; anchors.verticalCenter: parent.verticalCenter }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                session.clearSession()
+                Qt.callLater(Qt.quit)  // 延迟退出，让 QML 先完成当前帧
+            }
+        }
+    }
 }

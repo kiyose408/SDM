@@ -13,6 +13,7 @@ Page {
     id: root
     title: ""
     signal navigateToRegister()
+    signal loggedIn()
 
     background: Rectangle { color: Theme.bgPage }
 
@@ -141,8 +142,8 @@ Page {
                     }
                     var result = authService.login(loginIdInput.text.trim(), passwordInput.text);
                     if (result.success) {
-                        console.log("Login success:", result.userId);
-                        errorText.text = "";
+                        session.setSession(result.userId, result.nickname);
+                        root.loggedIn();
                     } else {
                         errorText.text = result.error || "登录失败";
                     }

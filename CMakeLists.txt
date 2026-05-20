@@ -29,6 +29,8 @@ set(PROJECT_SOURCES
     src/core/tdee_calculator.cpp
     src/core/auth_service.h
     src/core/auth_service.cpp
+    src/core/session_manager.h
+    src/core/session_manager.cpp
     src/data/base_repository.h
     src/data/database_manager.h
     src/data/database_manager.cpp

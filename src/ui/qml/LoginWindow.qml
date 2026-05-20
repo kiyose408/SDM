@@ -19,6 +19,9 @@ ApplicationWindow {
             registerWindow.show()
             root.hide()
         }
+        onLoggedIn: {
+            // C++ 侧 session::loggedIn 信号会关闭本窗口并加载 main.qml
+        }
     }
 
     // 注册子窗口（独立 Window，初始隐藏）

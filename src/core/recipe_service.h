@@ -20,6 +20,15 @@ public:
     Q_INVOKABLE QVariantMap getById(const QString &id);
     Q_INVOKABLE QVariantList getIngredients(const QString &recipeId);
 
+    /// 创建菜谱，返回 { success, recipeId }
+    Q_INVOKABLE QVariantMap createRecipe(const QVariantMap &data, const QVariantList &ingredients,
+                                          const QString &creatorId, const QString &familyId);
+    /// 更新菜谱
+    Q_INVOKABLE bool updateRecipe(const QString &recipeId, const QVariantMap &data,
+                                   const QVariantList &ingredients);
+
+    Q_INVOKABLE bool deleteRecipe(const QString &recipeId);
+
 private:
     void seedSystemRecipes();
     QVariantMap toMap(const struct Recipe &r) const;

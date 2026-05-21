@@ -81,11 +81,15 @@ bool RecipeRepository::save(const Recipe &e) {
 bool RecipeRepository::update(const Recipe &e) {
     QSqlQuery q(db_);
     q.prepare(QStringLiteral("UPDATE recipes SET name=:n,description=:d,cooking_time=:ct,servings=:s,"
-        "meal_type=:mt,version=version+1,updated_at=:ua WHERE id=:id"));
+        "meal_type=:mt,total_calories=:tc,total_protein=:tp,total_carbs=:tcb,total_fat=:tf,"
+        "version=version+1,updated_at=:ua WHERE id=:id"));
     OrmHelper::bindId(q, e.id); q.bindValue(QStringLiteral(":n"), e.name);
     q.bindValue(QStringLiteral(":d"), e.description.isEmpty()?QVariant():e.description);
     q.bindValue(QStringLiteral(":ct"), e.cooking_time); q.bindValue(QStringLiteral(":s"), e.servings);
-    q.bindValue(QStringLiteral(":mt"), e.meal_type); q.bindValue(QStringLiteral(":ua"), e.updated_at);
+    q.bindValue(QStringLiteral(":mt"), e.meal_type);
+    q.bindValue(QStringLiteral(":tc"), e.total_calories); q.bindValue(QStringLiteral(":tp"), e.total_protein);
+    q.bindValue(QStringLiteral(":tcb"), e.total_carbs); q.bindValue(QStringLiteral(":tf"), e.total_fat);
+    q.bindValue(QStringLiteral(":ua"), e.updated_at);
     if (!q.exec()) { qWarning()<<"[RecipeRepo] update failed:"<<q.lastError().text(); return false; }
     emit recipeUpdated(e.id); return true;
 }

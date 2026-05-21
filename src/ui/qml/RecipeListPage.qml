@@ -28,7 +28,7 @@ Page {
                 spacing: Theme.spacingSmall
                 Column {
                     Text { text: model.name; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary }
-                    Text { text: model.totalCalories.toFixed(0)+" kcal · "+model.cookingTime+" min"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint }
+                    Text { text: model.calPer100.toFixed(0)+" kcal/100g · "+model.cookingTime+" min"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint }
                 }
             }
             Text { text: ">"; font.pixelSize: Theme.fontSizeBody; color: Theme.textHint; anchors { right: parent.right; rightMargin: Theme.spacingMedium; verticalCenter: parent.verticalCenter } }
@@ -37,6 +37,14 @@ Page {
                 if(c.status===Component.Ready) navStack.push(c.createObject(navStack,{recipeId:model.id}))
             }}
         }
-        Component.onCompleted: { var items=recipeService.getAll(); for(var i=0;i<items.length;i++) model.append(items[i]) }
+        Component.onCompleted: refresh()
+    }
+
+    onVisibleChanged: { if (visible) refresh() }
+
+    function refresh() {
+        model.clear()
+        var items = recipeService.getAll()
+        for (var i = 0; i < items.length; i++) model.append(items[i])
     }
 }

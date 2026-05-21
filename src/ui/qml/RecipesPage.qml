@@ -43,5 +43,24 @@ Page {
                 }
             }
         }
+
+        Rectangle {
+            width: 220; height: 52; radius: Theme.radiusLarge; color: Theme.secondary
+            Text { anchors.centerIn: parent; text: "+ 创建菜谱"; font.pixelSize: Theme.fontSizeBody; color: "white" }
+            anchors.horizontalCenter: parent.horizontalCenter
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    console.log("Create recipe clicked")
+                    var c = Qt.createComponent("qrc:/qml/RecipeEditPage.qml")
+                    console.log("Component status:", c.status, c.errorString())
+                    if (c.status === Component.Ready) {
+                        var fams = familyService.getUserFamilies(session.userId)
+                        var fid = fams.length > 0 ? fams[0].familyId : ""
+                        navStack.push(c.createObject(navStack, { familyId: fid }))
+                    }
+                }
+            }
+        }
     }
 }

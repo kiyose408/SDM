@@ -100,12 +100,43 @@ Page {
         if (fams.length > 0) inviteLabel.text = "邀请码: " + (fams[0].inviteCode || "无")
     }
 
+    // 解散家庭按钮（仅户主可见）
+    Rectangle {
+        visible: isOwner
+        anchors { bottom: parent.bottom; bottomMargin: 20; horizontalCenter: parent.horizontalCenter }
+        width: parent.width - Theme.spacingMedium * 2; height: 44
+        radius: Theme.radiusLarge; color: Theme.danger
+        Text { anchors.centerIn: parent; text: "解散家庭"; font.pixelSize: Theme.fontSizeBody; color: "white" }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: dissolveDialog.open()
+        }
+    }
+
     Text {
         id: inviteLabel
-        anchors { bottom: parent.bottom; bottomMargin: 20; horizontalCenter: parent.horizontalCenter }
+        anchors { bottom: parent.bottom; bottomMargin: 80; horizontalCenter: parent.horizontalCenter }
         text: ""
         font.pixelSize: Theme.fontSizeBody; color: Theme.primary
         visible: isOwner
+    }
+
+    // 解散确认
+    Dialog {
+        id: dissolveDialog
+        title: "解散家庭"
+        modal: true
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        Column { spacing: Theme.spacingSmall
+            Text { text: "确认解散该家庭？\n所有成员将被移出，家庭数据将不可恢复。"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary }
+        }
+        onAccepted: {
+            var r = familyService.dissolveFamily(familyId, currentUserId)
+            if (r.success) {
+                navStack.pop()
+                if (typeof refreshFamilies === "function") refreshFamilies()
+            }
+        }
     }
 
     // 移除成员确认

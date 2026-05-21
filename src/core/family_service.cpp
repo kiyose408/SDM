@@ -5,6 +5,7 @@
 #include "utils/time_utils.h"
 
 #include <QRandomGenerator>
+#include <QSqlError>
 #include <QSqlQuery>
 #include <QDebug>
 
@@ -244,6 +245,74 @@ QVariantMap FamilyService::transferOwnership(const QString &familyId,
 
     result[QStringLiteral("success")] = true;
     emit operationCompleted(QStringLiteral("户主已移交"));
+    return result;
+}
+
+QVariantMap FamilyService::dissolveFamily(const QString &familyId,
+                                           const QString &operatorId) {
+    QVariantMap result;
+
+    auto opOpt = memberRepo_->getRelation(familyId, operatorId);
+    if (!opOpt.has_value() || opOpt->role != QStringLiteral("owner")) {
+        result[QStringLiteral("success")] = false;
+        result[QStringLiteral("error")]   = QStringLiteral("仅户主可解散家庭");
+        return result;
+    }
+
+    QSqlDatabase db = memberRepo_->database();
+    if (!db.transaction()) {
+        result[QStringLiteral("success")] = false;
+        result[QStringLiteral("error")]   = QStringLiteral("事务启动失败");
+        return result;
+    }
+
+    const QString now = utcNow();
+
+    auto run = [&](const QString &sql) -> bool {
+        QSqlQuery q(db);
+        if (!q.exec(sql)) {
+            qWarning() << "[FamilyService] dissolve failed:" << q.lastError().text() << sql.left(120);
+            db.rollback();
+            return false;
+        }
+        return true;
+    };
+
+    // UUID 由系统生成，无注入风险，直接拼接
+    const QString fid = familyId;
+
+    if (!run(QStringLiteral("UPDATE daily_menus SET is_deleted=1, updated_at='%1' WHERE family_id='%2' AND is_deleted=0")
+             .arg(now, fid))) return result;
+
+    // 收集 menu_id 后批量更新
+    {
+        QSqlQuery col(db);
+        col.exec(QStringLiteral("SELECT id FROM daily_menus WHERE family_id='%1'").arg(fid));
+        QStringList mids;
+        while (col.next()) mids.append(col.value(0).toString());
+        for (const auto &mid : mids) {
+            if (!run(QStringLiteral("UPDATE menu_items SET is_deleted=1, updated_at='%1' WHERE menu_id='%2'")
+                     .arg(now, mid))) return result;
+        }
+    }
+
+    if (!run(QStringLiteral("DELETE FROM wishlist_items WHERE family_id='%1'").arg(fid))) return result;
+    if (!run(QStringLiteral("UPDATE inventory_batches SET is_deleted=1, updated_at='%1' WHERE family_id='%2' AND is_deleted=0")
+             .arg(now, fid))) return result;
+    if (!run(QStringLiteral("DELETE FROM shopping_list_items WHERE family_id='%1'").arg(fid))) return result;
+    if (!run(QStringLiteral("DELETE FROM family_members WHERE family_id='%1'").arg(fid))) return result;
+    if (!run(QStringLiteral("UPDATE families SET is_deleted=1, updated_at='%1' WHERE id='%2'")
+             .arg(now, fid))) return result;
+
+    if (!db.commit()) {
+        db.rollback();
+        result[QStringLiteral("success")] = false;
+        result[QStringLiteral("error")]   = QStringLiteral("解散家庭失败");
+        return result;
+    }
+
+    result[QStringLiteral("success")] = true;
+    emit operationCompleted(QStringLiteral("家庭已解散"));
     return result;
 }
 

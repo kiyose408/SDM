@@ -53,6 +53,10 @@ public:
                                    const QString &userId,
                                    const QString &operatorId);
 
+    /// 解散家庭（仅户主可用，事务执行混合删除策略）
+    Q_INVOKABLE QVariantMap dissolveFamily(const QString &familyId,
+                                            const QString &operatorId);
+
     /// 转移户主权
     Q_INVOKABLE QVariantMap transferOwnership(const QString &familyId,
                                                const QString &currentOwnerId,

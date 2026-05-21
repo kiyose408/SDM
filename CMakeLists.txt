@@ -71,6 +71,9 @@ set(PROJECT_SOURCES
     src/data/family_repository.cpp
     src/data/family_member_repository.h
     src/data/family_member_repository.cpp
+    src/data/ingredient_entity.h
+    src/data/ingredient_repository.h
+    src/data/ingredient_repository.cpp
     resources/translations/SmartDietManager_zh_CN.ts
     resources.qrc
 )

@@ -59,6 +59,8 @@ set(PROJECT_SOURCES
     src/core/recipe_service.cpp
     src/core/tag_service.h
     src/core/tag_service.cpp
+    src/core/menu_service.h
+    src/core/menu_service.cpp
     src/data/base_repository.h
     src/data/database_manager.h
     src/data/database_manager.cpp
@@ -88,6 +90,9 @@ set(PROJECT_SOURCES
     src/data/tag_entity.h
     src/data/tag_repository.h
     src/data/tag_repository.cpp
+    src/data/menu_entity.h
+    src/data/menu_repository.h
+    src/data/menu_repository.cpp
     resources/translations/SmartDietManager_zh_CN.ts
     resources.qrc
 )

@@ -67,6 +67,8 @@ public:
      * 安全约束：必须提供旧密码才能修改，防止未授权篡改。
      * "忘记密码"远程重置留到阶段 8 服务端上线后实现。
      */
+    Q_INVOKABLE double getUserTdee(const QString &userId);
+
     Q_INVOKABLE QVariantMap resetPassword(const QString &loginId,
                                            const QString &oldPassword,
                                            const QString &newPassword);

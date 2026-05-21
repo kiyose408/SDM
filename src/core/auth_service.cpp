@@ -195,4 +195,9 @@ QVariantMap AuthService::resetPassword(const QString &loginId,
     return result;
 }
 
+double AuthService::getUserTdee(const QString &userId) {
+    auto user = userRepo_->getById(userId);
+    return user.has_value() ? user->tdee : 2000.0;
+}
+
 } // namespace smart_diet

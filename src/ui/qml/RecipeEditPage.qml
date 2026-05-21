@@ -10,8 +10,10 @@ Page {
     background: Rectangle { color: Theme.bgPage }
 
     Component.onCompleted: {
+        allTags = tagService.getAll()
         loadIngredients()
         if (recipeId) {
+            loadExistingTags()
             var d = recipeService.getById(recipeId)
             nameInput.text    = d.name || ""
             descInput.text    = d.description || ""
@@ -46,6 +48,14 @@ Page {
         ListElement { text: "晚餐";   value: "dinner" }
     }
     ListModel { id: ingModel }
+    property var selectedTags: []
+    property var allTags: []
+
+    function loadExistingTags() {
+        selectedTags = []
+        var ids = tagService.getTagIdsByRecipe(recipeId)
+        for (var i = 0; i < ids.length; i++) selectedTags.push(ids[i])
+    }
 
     // 返回
     Item {
@@ -146,6 +156,29 @@ Page {
                     }
                 }
             }
+
+            // ---- 标签选择 ----
+            Rectangle { width: parent.width; height: 1; color: Theme.borderLight }
+            Text { text: "标签"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary }
+
+            Flow {
+                width: parent.width; spacing: Theme.spacingSmall
+                Repeater {
+                    model: allTags
+                    delegate: Rectangle {
+                        width: 72; height: 28; radius: Theme.radiusSmall
+                        color: selectedTags.indexOf(modelData.id) >= 0 ? Theme.primary : Theme.bgCard
+                        border { width: 1; color: selectedTags.indexOf(modelData.id) >= 0 ? Theme.primary : Theme.borderLight }
+                        Text { anchors.centerIn: parent; text: modelData.name; font.pixelSize: Theme.fontSizeSmall; color: selectedTags.indexOf(modelData.id) >= 0 ? "white" : Theme.textPrimary }
+                        MouseArea { anchors.fill: parent; onClicked: {
+                            var idx = selectedTags.indexOf(modelData.id)
+                            if (idx >= 0) selectedTags.splice(idx, 1)
+                            else selectedTags.push(modelData.id)
+                            selectedTags = selectedTags  // 触发绑定刷新
+                        }}
+                    }
+                }
+            }
         }
     }
 
@@ -178,8 +211,10 @@ Page {
         }
         if (recipeId) {
             recipeService.updateRecipe(recipeId, data, ings)
+            tagService.setRecipeTags(recipeId, selectedTags)
         } else {
-            recipeService.createRecipe(data, ings, session.userId, familyId)
+            var r = recipeService.createRecipe(data, ings, session.userId, familyId)
+            if (r.success) tagService.setRecipeTags(r.recipeId, selectedTags)
         }
         navStack.pop()
     }

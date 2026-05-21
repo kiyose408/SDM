@@ -32,6 +32,15 @@ QVariantMap RecipeService::toMap(const Recipe &r) const {
     m[QStringLiteral("carbPer100")] = totalWeight > 0 ? r.total_carbs    / totalWeight * 100 : 0;
     m[QStringLiteral("fatPer100")]  = totalWeight > 0 ? r.total_fat      / totalWeight * 100 : 0;
 
+    // 标签 ID 列表
+    QVariantList tagIds;
+    // 简单内联查询（TagRepository 已有方法）
+    QSqlQuery tq(DatabaseManager::instance().database());
+    tq.prepare(QStringLiteral("SELECT tag_id FROM recipe_tag_relations WHERE recipe_id=:rid"));
+    tq.bindValue(QStringLiteral(":rid"), r.id);
+    if (tq.exec()) while (tq.next()) tagIds.append(tq.value(0).toString());
+    m[QStringLiteral("tags")] = tagIds;
+
     return m;
 }
 
@@ -72,12 +81,8 @@ QVariantList RecipeService::getIngredients(const QString &rid) {
 }
 
 void RecipeService::seedSystemRecipes() {
-    // 删除旧系统菜谱重新播种（确保营养数据正确）
-    {
-        QSqlQuery q(DatabaseManager::instance().database());
-        q.exec(QStringLiteral("DELETE FROM recipe_ingredients WHERE recipe_id IN (SELECT id FROM recipes WHERE is_system=1)"));
-        q.exec(QStringLiteral("DELETE FROM recipes WHERE is_system=1"));
-    }
+    // 仅在菜品表为空时播种（首次运行）
+    if (repo_->getAll().count() > 0) return;
 
     auto ing = [&](const QString &name) -> QString {
         auto list = ingRepo_->searchByName(name);
@@ -86,10 +91,10 @@ void RecipeService::seedSystemRecipes() {
 
     const QString now = utcNow();
 
-    struct { const char *n; const char *d; int t; const char *mt; struct { const char *in; double a; } items[5]; } recipes[] = {
-        {"番茄炒蛋", "家常经典", 10, "any", {{"鸡蛋", 200}, {"西红柿", 300}, {"盐", 3}, {"食用油", 15}}},
-        {"蛋炒饭",   "快手主食", 8,  "any", {{"大米", 200}, {"鸡蛋", 100}, {"食用油", 10}, {"盐", 2}}},
-        {"清炒土豆丝","素菜",    8,  "any", {{"土豆", 300}, {"食用油", 10}, {"盐", 3}}},
+    struct { const char *n; const char *d; int t; const char *mt; const char *tags[4]; struct { const char *in; double a; } items[5]; } recipes[] = {
+        {"番茄炒蛋", "家常经典", 10, "any", {"家常","快手菜","煎炒","高蛋白"}, {{"鸡蛋", 200}, {"西红柿", 300}, {"盐", 3}, {"食用油", 15}}},
+        {"蛋炒饭",   "快手主食", 8,  "any", {"快手菜","煎炒","家常"}, {{"大米", 200}, {"鸡蛋", 100}, {"食用油", 10}, {"盐", 2}}},
+        {"清炒土豆丝","素菜",    8,  "any", {"清淡","家常","低脂"}, {{"土豆", 300}, {"食用油", 10}, {"盐", 3}}},
     };
 
     for (const auto &rc : recipes) {
@@ -126,6 +131,23 @@ void RecipeService::seedSystemRecipes() {
         r.total_carbs = totalCarb; r.total_fat = totalFat;
         r.updated_at = utcNow();
         repo_->update(r);
+
+        // 为种子菜谱分配标签
+        for (int t = 0; t < 4 && rc.tags[t]; t++) {
+            QString tagName = QString::fromUtf8(rc.tags[t]);
+            QSqlQuery findT(DatabaseManager::instance().database());
+            findT.prepare(QStringLiteral("SELECT id FROM tags WHERE name=:n"));
+            findT.bindValue(QStringLiteral(":n"), tagName);
+            if (findT.exec() && findT.next()) {
+                QSqlQuery ins(DatabaseManager::instance().database());
+                ins.prepare(QStringLiteral("INSERT OR IGNORE INTO recipe_tag_relations (id,recipe_id,tag_id,created_at) VALUES (:id,:rid,:tid,:ca)"));
+                ins.bindValue(QStringLiteral(":id"), generateUuid());
+                ins.bindValue(QStringLiteral(":rid"), r.id);
+                ins.bindValue(QStringLiteral(":tid"), findT.value(0).toString());
+                ins.bindValue(QStringLiteral(":ca"), now);
+                ins.exec();
+            }
+        }
     }
     qDebug() << "[RecipeService] Seeded" << sizeof(recipes)/sizeof(recipes[0]) << "recipes";
 }

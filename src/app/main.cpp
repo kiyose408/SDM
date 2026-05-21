@@ -16,9 +16,11 @@
 #include "data/ingredient_repository.h"
 #include "data/recipe_repository.h"
 #include "data/recipe_favorite_repository.h"
+#include "data/tag_repository.h"
 #include "core/family_service.h"
 #include "core/ingredient_service.h"
 #include "core/recipe_service.h"
+#include "core/tag_service.h"
 
 int main(int argc, char *argv[])
 {
@@ -58,6 +60,8 @@ int main(int argc, char *argv[])
     auto *recipeIngRepo    = new smart_diet::RecipeIngredientRepository(&app);
     auto *recipeFavRepo    = new smart_diet::RecipeFavoriteRepository(&app);
     auto *recipeService    = new smart_diet::RecipeService(recipeRepo, recipeIngRepo, ingredientRepo, recipeFavRepo, &app);
+    auto *tagRepo          = new smart_diet::TagRepository(&app);
+    auto *tagService       = new smart_diet::TagService(tagRepo, &app);
 
     QObject::connect(authService, &smart_diet::AuthService::userLoggedIn,
                      session, [session](const QString &userId) {
@@ -69,6 +73,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("familyService"), familyService);
     engine.rootContext()->setContextProperty(QStringLiteral("ingredientService"), ingredientService);
     engine.rootContext()->setContextProperty(QStringLiteral("recipeService"), recipeService);
+    engine.rootContext()->setContextProperty(QStringLiteral("tagService"), tagService);
 
     // ================================================================
     // 登录成功后 → 关闭认证窗口 → 加载主界面

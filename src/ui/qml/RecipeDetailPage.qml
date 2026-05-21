@@ -16,6 +16,16 @@ Page {
         var data = recipeService.getById(recipeId)
         favIcon.text = recipeService.isFavorited(session.userId, recipeId) ? "favorite" : "favorite_border"
         nameLabel.text = data.name || ""
+        // 标签
+        var tagIds = data.tags || []
+        var allTags = tagService.getAll()
+        var tagNames = []
+        for (var i = 0; i < tagIds.length; i++) {
+            for (var j = 0; j < allTags.length; j++) {
+                if (allTags[j].id === tagIds[i]) tagNames.push(allTags[j].name)
+            }
+        }
+        tagLabel.text = tagNames.length > 0 ? tagNames.join(" · ") : "暂无标签"
         descLabel.text = data.description || ""
         timeLabel.text = "烹饪时间: " + (data.cookingTime || 0) + " min | " + (data.servings || 2) + " 人份"
         calLabel.text = "热量: " + (data.calPer100 || 0).toFixed(0) + " kcal/100g (总计 " + (data.totalCalories || 0).toFixed(0) + " kcal)"
@@ -67,6 +77,12 @@ Page {
             Text { id: proLabel; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary }
             Text { id: carbLabel; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary }
             Text { id: fatLabel; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary }
+            Rectangle { width: parent.width; height: 1; color: Theme.borderLight }
+            Text { text: "标签"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary }
+            Text {
+                id: tagLabel
+                font.pixelSize: Theme.fontSizeSmall; color: Theme.primary; wrapMode: Text.WordWrap; width: parent.width
+            }
             Rectangle { width: parent.width; height: 1; color: Theme.borderLight }
             Text { text: "食材"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary }
             Repeater {

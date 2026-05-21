@@ -13,6 +13,8 @@
         <file alias="MemberListPage.qml">src/ui/qml/MemberListPage.qml</file>
         <file alias="IngredientListPage.qml">src/ui/qml/IngredientListPage.qml</file>
         <file alias="IngredientDetailPage.qml">src/ui/qml/IngredientDetailPage.qml</file>
+        <file alias="RecipeListPage.qml">src/ui/qml/RecipeListPage.qml</file>
+        <file alias="RecipeDetailPage.qml">src/ui/qml/RecipeDetailPage.qml</file>
         <file alias="LoginPage.qml">src/ui/qml/LoginPage.qml</file>
         <file alias="LoginWindow.qml">src/ui/qml/LoginWindow.qml</file>
 

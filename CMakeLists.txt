@@ -55,6 +55,8 @@ set(PROJECT_SOURCES
     src/core/family_service.cpp
     src/core/ingredient_service.h
     src/core/ingredient_service.cpp
+    src/core/recipe_service.h
+    src/core/recipe_service.cpp
     src/data/base_repository.h
     src/data/database_manager.h
     src/data/database_manager.cpp
@@ -76,6 +78,9 @@ set(PROJECT_SOURCES
     src/data/ingredient_entity.h
     src/data/ingredient_repository.h
     src/data/ingredient_repository.cpp
+    src/data/recipe_entity.h
+    src/data/recipe_repository.h
+    src/data/recipe_repository.cpp
     resources/translations/SmartDietManager_zh_CN.ts
     resources.qrc
 )

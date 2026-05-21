@@ -10,9 +10,19 @@ Page {
 
     // ingredientService 由 main.cpp setContextProperty 注入
 
+    Item {
+        anchors { top: parent.top; topMargin: Theme.spacingSmall; left: parent.left; leftMargin: Theme.spacingSmall }
+        width: backRow.width; height: backRow.height
+        Row { id: backRow; spacing: 4
+            Icon { name: "arrow_back"; size: 24; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
+            Text { text: "返回"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
+        }
+        MouseArea { anchors.fill: parent; onClicked: navStack.pop() }
+    }
+
     ListView {
         id: listView
-        anchors { fill: parent; margins: Theme.spacingMedium }
+        anchors { top: parent.top; topMargin: 40; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium; bottom: parent.bottom }
         spacing: Theme.spacingSmall
         model: ListModel { id: ingredientModel }
 

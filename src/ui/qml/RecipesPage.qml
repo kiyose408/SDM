@@ -9,49 +9,38 @@ Page {
     background: Rectangle { color: Theme.bgPage }
 
     Column {
-        anchors { fill: parent; margins: Theme.spacingMedium }
-        spacing: Theme.spacingMedium
+        anchors.centerIn: parent
+        spacing: Theme.spacingLarge
 
-        Row {
-            spacing: Theme.spacingSmall
-            Rectangle {
-                width: (parent.width - Theme.spacingSmall) / 2; height: 44
-                radius: Theme.radiusLarge; color: Theme.primary
-                Text { anchors.centerIn: parent; text: "食材库"; font.pixelSize: Theme.fontSizeBody; color: "white" }
-                MouseArea { anchors.fill: parent; onClicked: {
-                    var c = Qt.createComponent("qrc:/qml/IngredientListPage.qml")
-                    if (c.status===Component.Ready) navStack.push(c.createObject(navStack)) }}
-            }
-            Rectangle {
-                width: (parent.width - Theme.spacingSmall) / 2; height: 44
-                radius: Theme.radiusLarge; color: Theme.secondary
-                Text { anchors.centerIn: parent; text: "菜谱列表"; font.pixelSize: Theme.fontSizeBody; color: "white" }
-                MouseArea { anchors.fill: parent; onClicked: {
+        Icon { name: "menu_book"; size: 56; color: Theme.primary; anchors.horizontalCenter: parent.horizontalCenter }
+        Text { text: "菜谱与食材"; font.pixelSize: Theme.fontSizeLarge; color: Theme.textPrimary; anchors.horizontalCenter: parent.horizontalCenter }
+
+        Item { width: 1; height: Theme.spacingMedium }
+
+        Rectangle {
+            width: 220; height: 52; radius: Theme.radiusLarge; color: Theme.primary
+            Text { anchors.centerIn: parent; text: "📖 菜谱列表"; font.pixelSize: Theme.fontSizeBody; color: "white" }
+            anchors.horizontalCenter: parent.horizontalCenter
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
                     var c = Qt.createComponent("qrc:/qml/RecipeListPage.qml")
-                    if (c.status===Component.Ready) navStack.push(c.createObject(navStack)) }}
+                    if (c.status === Component.Ready) navStack.push(c.createObject(navStack))
+                }
             }
         }
 
-        Text { text: "今日推荐"; font.pixelSize: Theme.fontSizeTitle; color: Theme.textPrimary }
-        ListView {
-            id: rv; width: parent.width; height: parent.height - 100
-            spacing: Theme.spacingSmall
-            model: ListModel { id: recipeModel }
-            delegate: Rectangle {
-                width: rv.width; height: 56; radius: Theme.radiusSmall
-                color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
-                Row {
-                    anchors { left: parent.left; leftMargin: Theme.spacingMedium; verticalCenter: parent.verticalCenter }
-                    spacing: Theme.spacingSmall
-                    Column {
-                        Text { text: model.name; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary }
-                        Text { text: model.totalCalories.toFixed(0)+" kcal · "+model.cookingTime+" min"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint }
-                    }
+        Rectangle {
+            width: 220; height: 52; radius: Theme.radiusLarge
+            color: "transparent"; border { width: 1; color: Theme.primary }
+            Text { anchors.centerIn: parent; text: "🥬 食材库"; font.pixelSize: Theme.fontSizeBody; color: Theme.primary }
+            anchors.horizontalCenter: parent.horizontalCenter
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    var c = Qt.createComponent("qrc:/qml/IngredientListPage.qml")
+                    if (c.status === Component.Ready) navStack.push(c.createObject(navStack))
                 }
-            }
-            Component.onCompleted: {
-                var items = recipeService.getAll()
-                for (var i=0;i<items.length;i++) recipeModel.append(items[i])
             }
         }
     }

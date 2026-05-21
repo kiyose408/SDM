@@ -37,33 +37,32 @@ Page {
         }
     }
 
-    ScrollView {
+    Flow {
+        id: tagFlow
         anchors { top: parent.top; topMargin: 86; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium }
-        height: 44; contentWidth: tagRow.width
-        Row {
-            id: tagRow; spacing: Theme.spacingSmall
-            Rectangle {
-                width: 44; height: 28; radius: Theme.radiusSmall
-                color: activeTag === "all" ? Theme.primary : Theme.bgCard
-                border { width: 1; color: activeTag === "all" ? Theme.primary : Theme.borderLight }
-                Text { anchors.centerIn: parent; text: "全部"; font.pixelSize: Theme.fontSizeSmall; color: activeTag === "all" ? "white" : Theme.textPrimary }
-                MouseArea { anchors.fill: parent; onClicked: { activeTag = "all"; refresh() } }
-            }
-            Repeater {
-                model: allTags
-                delegate: Rectangle {
-                    width: modelData.name.length * 14 + 16; height: 28; radius: Theme.radiusSmall
-                    color: activeTag === modelData.id ? Theme.primary : Theme.bgCard
-                    border { width: 1; color: activeTag === modelData.id ? Theme.primary : Theme.borderLight }
-                    Text { anchors.centerIn: parent; text: modelData.name; font.pixelSize: Theme.fontSizeSmall; color: activeTag === modelData.id ? "white" : Theme.textPrimary }
-                    MouseArea { anchors.fill: parent; onClicked: { activeTag = activeTag === modelData.id ? "all" : modelData.id; refresh() } }
-                }
+        spacing: Theme.spacingSmall
+
+        Rectangle {
+            width: 44; height: 28; radius: Theme.radiusSmall
+            color: activeTag === "all" ? Theme.primary : Theme.bgCard
+            border { width: 1; color: activeTag === "all" ? Theme.primary : Theme.borderLight }
+            Text { anchors.centerIn: parent; text: "全部"; font.pixelSize: Theme.fontSizeSmall; color: activeTag === "all" ? "white" : Theme.textPrimary }
+            MouseArea { anchors.fill: parent; onClicked: { activeTag = "all"; refresh() } }
+        }
+        Repeater {
+            model: allTags
+            delegate: Rectangle {
+                width: modelData.name.length * 14 + 16; height: 28; radius: Theme.radiusSmall
+                color: activeTag === modelData.id ? Theme.primary : Theme.bgCard
+                border { width: 1; color: activeTag === modelData.id ? Theme.primary : Theme.borderLight }
+                Text { anchors.centerIn: parent; text: modelData.name; font.pixelSize: Theme.fontSizeSmall; color: activeTag === modelData.id ? "white" : Theme.textPrimary }
+                MouseArea { anchors.fill: parent; onClicked: { activeTag = activeTag === modelData.id ? "all" : modelData.id; refresh() } }
             }
         }
     }
 
     ListView {
-        anchors { top: parent.top; topMargin: 136; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium; bottom: parent.bottom }
+        anchors { top: tagFlow.bottom; topMargin: Theme.spacingSmall; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium; bottom: parent.bottom }
         spacing: Theme.spacingSmall
         model: ListModel { id: model }
         delegate: Rectangle {

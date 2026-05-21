@@ -59,9 +59,9 @@ int main(int argc, char *argv[])
     auto *recipeRepo       = new smart_diet::RecipeRepository(&app);
     auto *recipeIngRepo    = new smart_diet::RecipeIngredientRepository(&app);
     auto *recipeFavRepo    = new smart_diet::RecipeFavoriteRepository(&app);
-    auto *recipeService    = new smart_diet::RecipeService(recipeRepo, recipeIngRepo, ingredientRepo, recipeFavRepo, &app);
     auto *tagRepo          = new smart_diet::TagRepository(&app);
     auto *tagService       = new smart_diet::TagService(tagRepo, &app);
+    auto *recipeService    = new smart_diet::RecipeService(recipeRepo, recipeIngRepo, ingredientRepo, recipeFavRepo, &app);
 
     QObject::connect(authService, &smart_diet::AuthService::userLoggedIn,
                      session, [session](const QString &userId) {

@@ -50,10 +50,12 @@ void TagService::seedTags() {
     if (repo_->getAll().count() > 0) return;
 
     struct { const char *n, *t; } tags[] = {
-        {"高蛋白", "nutrition"}, {"低脂", "nutrition"}, {"高纤维", "nutrition"},
-        {"清淡", "flavor"}, {"重口", "flavor"}, {"微辣", "flavor"},
-        {"快手菜", "cooking_method"}, {"炖煮", "cooking_method"}, {"煎炒", "cooking_method"},
-        {"家常", "occasion"}, {"宴客", "occasion"}, {"减脂餐", "occasion"},
+        {"高蛋白","nutrition"},{"低碳水","nutrition"},{"优质脂肪","nutrition"},
+        {"轻食","nutrition"},{"增肌","nutrition"},{"减脂","nutrition"},{"热量炸弹","nutrition"},
+        {"酸","flavor"},{"甜","flavor"},{"辣","flavor"},{"咸鲜","flavor"},{"麻香","flavor"},
+        {"烤箱","cooking_method"},{"空气炸锅","cooking_method"},{"免开火","cooking_method"},
+        {"家常菜","occasion"},{"汤羹甜品","occasion"},{"主食","occasion"},
+        {"小吃","occasion"},{"凉菜沙拉","occasion"},{"宴客节日","occasion"},
     };
 
     const QString now = utcNow();

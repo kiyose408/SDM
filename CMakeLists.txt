@@ -53,6 +53,8 @@ set(PROJECT_SOURCES
     src/core/session_manager.cpp
     src/core/family_service.h
     src/core/family_service.cpp
+    src/core/ingredient_service.h
+    src/core/ingredient_service.cpp
     src/data/base_repository.h
     src/data/database_manager.h
     src/data/database_manager.cpp

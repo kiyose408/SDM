@@ -81,6 +81,8 @@ set(PROJECT_SOURCES
     src/data/recipe_entity.h
     src/data/recipe_repository.h
     src/data/recipe_repository.cpp
+    src/data/recipe_favorite_repository.h
+    src/data/recipe_favorite_repository.cpp
     resources/translations/SmartDietManager_zh_CN.ts
     resources.qrc
 )

@@ -1,6 +1,7 @@
 #include "recipe_service.h"
 #include "data/recipe_repository.h"
 #include "data/ingredient_repository.h"
+#include "data/recipe_favorite_repository.h"
 #include "data/database_manager.h"
 #include <QSqlQuery>
 #include "utils/uuid_utils.h"
@@ -10,8 +11,9 @@
 namespace smart_diet {
 
 RecipeService::RecipeService(RecipeRepository *r, RecipeIngredientRepository *ri,
-                             IngredientRepository *ir, QObject *parent)
-    : BaseService(parent), repo_(r), riRepo_(ri), ingRepo_(ir) { seedSystemRecipes(); }
+                             IngredientRepository *ir, RecipeFavoriteRepository *fr,
+                             QObject *parent)
+    : BaseService(parent), repo_(r), riRepo_(ri), ingRepo_(ir), favRepo_(fr) { seedSystemRecipes(); }
 
 QVariantMap RecipeService::toMap(const Recipe &r) const {
     // 计算总重量用于每 100g 归一化
@@ -36,6 +38,12 @@ QVariantMap RecipeService::toMap(const Recipe &r) const {
 QVariantList RecipeService::getAll() {
     QVariantList list;
     for (const auto &r : repo_->getAll()) list.append(toMap(r));
+    return list;
+}
+
+QVariantList RecipeService::searchByName(const QString &keyword) {
+    QVariantList list;
+    for (const auto &r : repo_->searchByName(keyword)) list.append(toMap(r));
     return list;
 }
 
@@ -220,6 +228,25 @@ bool RecipeService::updateRecipe(const QString &recipeId, const QVariantMap &dat
 
 bool RecipeService::deleteRecipe(const QString &recipeId) {
     return repo_->softDelete(recipeId);
+}
+
+bool RecipeService::toggleFavorite(const QString &userId, const QString &recipeId) {
+    if (favRepo_->isFavorited(userId, recipeId))
+        return favRepo_->removeFavorite(userId, recipeId);
+    return favRepo_->addFavorite(userId, recipeId);
+}
+
+bool RecipeService::isFavorited(const QString &userId, const QString &recipeId) {
+    return favRepo_->isFavorited(userId, recipeId);
+}
+
+QVariantList RecipeService::getFavorites(const QString &userId) {
+    QVariantList list;
+    for (const auto &rid : favRepo_->getFavoriteRecipeIds(userId)) {
+        auto opt = repo_->getById(rid);
+        if (opt.has_value()) list.append(toMap(opt.value()));
+    }
+    return list;
 }
 
 } // namespace smart_diet

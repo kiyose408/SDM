@@ -16,10 +16,37 @@ Page {
         MouseArea { anchors.fill: parent; onClicked: navStack.pop() }
     }
 
+    // 搜索栏
+    Rectangle {
+        anchors { top: parent.top; topMargin: 40; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium }
+        height: 40; radius: Theme.radiusLarge; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
+        Row {
+            anchors { left: parent.left; leftMargin: Theme.spacingSmall; verticalCenter: parent.verticalCenter }
+            spacing: Theme.spacingSmall
+            Icon { name: "search"; size: 20; color: Theme.textHint; anchors.verticalCenter: parent.verticalCenter }
+            TextInput {
+                id: searchInput
+                width: parent.parent.width - 80
+                anchors.verticalCenter: parent.verticalCenter
+                font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary
+                Text {
+                    text: "搜索菜谱..."
+                    font: parent.font; color: Theme.textHint
+                    visible: !searchInput.text && !searchInput.activeFocus
+                }
+                onTextChanged: refresh()
+            }
+        }
+    }
+
     ListView {
-        anchors { top: parent.top; topMargin: 40; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium; bottom: parent.bottom }
+        anchors { top: parent.top; topMargin: 90; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium; bottom: parent.bottom }
         spacing: Theme.spacingSmall
         model: ListModel { id: model }
+        header: Text {
+            text: "共 " + model.count + " 道菜谱"
+            font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint
+        }
         delegate: Rectangle {
             width: parent.width; height: 56; radius: Theme.radiusSmall
             color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
@@ -44,7 +71,8 @@ Page {
 
     function refresh() {
         model.clear()
-        var items = recipeService.getAll()
+        var kw = searchInput.text.trim()
+        var items = kw ? recipeService.searchByName(kw) : recipeService.getAll()
         for (var i = 0; i < items.length; i++) model.append(items[i])
     }
 }

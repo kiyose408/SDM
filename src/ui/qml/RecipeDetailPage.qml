@@ -14,6 +14,7 @@ Page {
     function loadData() {
         ingModel.clear()
         var data = recipeService.getById(recipeId)
+        favIcon.text = recipeService.isFavorited(session.userId, recipeId) ? "favorite" : "favorite_border"
         nameLabel.text = data.name || ""
         descLabel.text = data.description || ""
         timeLabel.text = "烹饪时间: " + (data.cookingTime || 0) + " min | " + (data.servings || 2) + " 人份"
@@ -26,14 +27,30 @@ Page {
     }
 
     Item {
-        anchors { top: parent.top; topMargin: Theme.spacingSmall; left: parent.left; leftMargin: Theme.spacingSmall }
-        width: backRow.width
-        height: backRow.height
+        anchors { top: parent.top; topMargin: Theme.spacingSmall; left: parent.left; leftMargin: Theme.spacingSmall; right: parent.right; rightMargin: Theme.spacingSmall }
+        height: 30
         Row { id: backRow; spacing: 4
             Icon { name: "arrow_back"; size: 24; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
             Text { text: "返回"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
         }
-        MouseArea { anchors.fill: parent; onClicked: navStack.pop() }
+        MouseArea {
+            anchors { left: parent.left; verticalCenter: parent.verticalCenter }
+            width: 80
+            height: 30
+            onClicked: navStack.pop()
+        }
+
+        Icon {
+            id: favIcon
+            name: "favorite_border"
+            size: 28
+            color: Theme.danger
+            anchors { right: parent.right; verticalCenter: parent.verticalCenter }
+            MouseArea { anchors.fill: parent; onClicked: {
+                recipeService.toggleFavorite(session.userId, recipeId)
+                loadData()
+            }}
+        }
     }
 
     ListModel { id: ingModel }

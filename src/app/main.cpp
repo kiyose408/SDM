@@ -15,6 +15,7 @@
 #include "data/family_member_repository.h"
 #include "data/ingredient_repository.h"
 #include "data/recipe_repository.h"
+#include "data/recipe_favorite_repository.h"
 #include "core/family_service.h"
 #include "core/ingredient_service.h"
 #include "core/recipe_service.h"
@@ -55,7 +56,8 @@ int main(int argc, char *argv[])
     auto *ingredientService = new smart_diet::IngredientService(ingredientRepo, &app);
     auto *recipeRepo       = new smart_diet::RecipeRepository(&app);
     auto *recipeIngRepo    = new smart_diet::RecipeIngredientRepository(&app);
-    auto *recipeService    = new smart_diet::RecipeService(recipeRepo, recipeIngRepo, ingredientRepo, &app);
+    auto *recipeFavRepo    = new smart_diet::RecipeFavoriteRepository(&app);
+    auto *recipeService    = new smart_diet::RecipeService(recipeRepo, recipeIngRepo, ingredientRepo, recipeFavRepo, &app);
 
     QObject::connect(authService, &smart_diet::AuthService::userLoggedIn,
                      session, [session](const QString &userId) {

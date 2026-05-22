@@ -24,6 +24,8 @@ QString MenuService::findOrCreateMenu(const QString &familyId, const QString &da
     m.family_id = familyId;
     m.date      = date;
     m.meal_type = mealType;
+    m.diner_count= 1;
+    m.diet_mode = QStringLiteral("maintenance");
     m.created_at = utcNow();
     m.updated_at = m.created_at;
     dmRepo_->save(m);

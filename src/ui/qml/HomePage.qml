@@ -100,6 +100,7 @@ Page {
                 color: Theme.primary
                 Text { anchors.centerIn: parent; text: "一键生成全天菜单"; font.pixelSize: Theme.fontSizeBody; color: "white" }
                 MouseArea { anchors.fill: parent; onClicked: {
+                    if (!familyId) return
                     gen("breakfast", breakfastCount)
                     gen("lunch", lunchCount)
                     gen("dinner", dinnerCount)

@@ -250,17 +250,17 @@ Page {
                     Text { text: "+"; anchors.centerIn: parent; color: Theme.textHint; font.pixelSize: 14 }
                     MouseArea { anchors.fill: parent; onClicked: breakfastCount++ }
                 }
+                Rectangle {
+                    width: 64; height: 24; radius: 12; color: Theme.primary
+                    Text { anchors.centerIn: parent; text: "生成"; font.pixelSize: 11; color: "white" }
+                    MouseArea { anchors.fill: parent; onClicked: gen("breakfast", breakfastCount) }
+                }
             }
             Row {
                 spacing: Theme.spacingSmall
                 Repeater {
                     model: bModel
                     delegate: DishCard { mt: "breakfast" }
-                }
-                Rectangle {
-                    width: 80; height: 64; radius: 16; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
-                    Text { anchors.centerIn: parent; text: "生成"; font.pixelSize: Theme.fontSizeSmall; color: Theme.primary }
-                    MouseArea { anchors.fill: parent; onClicked: gen("breakfast", breakfastCount) }
                 }
             }
 
@@ -276,17 +276,17 @@ Page {
                     Text { text: "+"; anchors.centerIn: parent; color: Theme.textHint; font.pixelSize: 14 }
                     MouseArea { anchors.fill: parent; onClicked: lunchCount++ }
                 }
+                Rectangle {
+                    width: 64; height: 24; radius: 12; color: Theme.primary
+                    Text { anchors.centerIn: parent; text: "生成"; font.pixelSize: 11; color: "white" }
+                    MouseArea { anchors.fill: parent; onClicked: gen("lunch", lunchCount) }
+                }
             }
             Row {
                 spacing: Theme.spacingSmall
                 Repeater {
                     model: lModel
                     delegate: DishCard { mt: "lunch" }
-                }
-                Rectangle {
-                    width: 80; height: 64; radius: 16; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
-                    Text { anchors.centerIn: parent; text: "生成"; font.pixelSize: Theme.fontSizeSmall; color: Theme.primary }
-                    MouseArea { anchors.fill: parent; onClicked: gen("lunch", lunchCount) }
                 }
             }
 
@@ -302,17 +302,17 @@ Page {
                     Text { text: "+"; anchors.centerIn: parent; color: Theme.textHint; font.pixelSize: 14 }
                     MouseArea { anchors.fill: parent; onClicked: dinnerCount++ }
                 }
+                Rectangle {
+                    width: 64; height: 24; radius: 12; color: Theme.primary
+                    Text { anchors.centerIn: parent; text: "生成"; font.pixelSize: 11; color: "white" }
+                    MouseArea { anchors.fill: parent; onClicked: gen("dinner", dinnerCount) }
+                }
             }
             Row {
                 spacing: Theme.spacingSmall
                 Repeater {
                     model: dModel
                     delegate: DishCard { mt: "dinner" }
-                }
-                Rectangle {
-                    width: 80; height: 64; radius: 16; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
-                    Text { anchors.centerIn: parent; text: "生成"; font.pixelSize: Theme.fontSizeSmall; color: Theme.primary }
-                    MouseArea { anchors.fill: parent; onClicked: gen("dinner", dinnerCount) }
                 }
             }
         }
@@ -329,7 +329,7 @@ Page {
             anchors { fill: parent; margins: 12 }
             spacing: 6
             Text { text: model.name; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; elide: Text.ElideRight; width: parent.width }
-            Text { text: model.calPer100.toFixed(0) + " kcal/100g"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint }
+            Text { text: model.calPer100.toFixed(0) + " kcal"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint }
             Row {
                 spacing: 4
                 Text { text: "份数:"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint; anchors.verticalCenter: parent.verticalCenter }

@@ -162,7 +162,7 @@ QVariantMap MenuService::generateMenu(const QString &familyId, const QString &da
             double maxSv = dinerCount * 2.5;
             if (maxSv > 10.0) maxSv = 10.0;
             if (maxSv < 2.5)  maxSv = 2.5;
-            for (double sv = 0.5; sv <= maxSv; sv += 0.5) {
+            for (double sv = 1.0; sv <= maxSv; sv += 0.5) {
                 double ratio = sv / defSv;
                 double addCal  = rc.total_calories * ratio;
                 double addPro  = rc.total_protein  * ratio;
@@ -278,7 +278,7 @@ bool MenuService::swapDish(const QString &menuId, const QString &oldRecipeId) {
 }
 
 bool MenuService::adjustServings(const QString &menuId, const QString &recipeId, double servings) {
-    if (servings < 0.5) servings = 0.5;
+    if (servings < 1.0) servings = 1.0;
     QSqlQuery q(miRepo_->database());
     q.prepare(QStringLiteral("UPDATE menu_items SET servings_override=:sv, updated_at=:ua WHERE menu_id=:mid AND recipe_id=:rid"));
     q.bindValue(QStringLiteral(":sv"), (int)(servings * 10));

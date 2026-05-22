@@ -242,7 +242,8 @@ Page {
 
             // ========== 早餐 ==========
             Row { spacing: Theme.spacingSmall
-                Text { text: "🥣 早餐"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
+                Icon { name: "free_breakfast"; size: 18; color: Theme.primary; anchors.verticalCenter: parent.verticalCenter }
+                Text { text: "早餐"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
                 Rectangle { width: 20; height: 20; radius: 10; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
                     Text { text: "−"; anchors.centerIn: parent; color: Theme.textHint; font.pixelSize: 14 }
                     MouseArea { anchors.fill: parent; onClicked: { if (breakfastCount > 1) breakfastCount-- } }
@@ -268,7 +269,8 @@ Page {
 
             // ========== 午餐 ==========
             Row { spacing: Theme.spacingSmall
-                Text { text: "🍱 午餐"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
+                Icon { name: "lunch_dining"; size: 18; color: Theme.secondary; anchors.verticalCenter: parent.verticalCenter }
+                Text { text: "午餐"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
                 Rectangle { width: 20; height: 20; radius: 10; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
                     Text { text: "−"; anchors.centerIn: parent; color: Theme.textHint; font.pixelSize: 14 }
                     MouseArea { anchors.fill: parent; onClicked: { if (lunchCount > 1) lunchCount-- } }
@@ -294,7 +296,8 @@ Page {
 
             // ========== 晚餐 ==========
             Row { spacing: Theme.spacingSmall
-                Text { text: "🍲 晚餐"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
+                Icon { name: "dinner_dining"; size: 18; color: Theme.accent; anchors.verticalCenter: parent.verticalCenter }
+                Text { text: "晚餐"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
                 Rectangle { width: 20; height: 20; radius: 10; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
                     Text { text: "−"; anchors.centerIn: parent; color: Theme.textHint; font.pixelSize: 14 }
                     MouseArea { anchors.fill: parent; onClicked: { if (dinnerCount > 1) dinnerCount-- } }
@@ -362,10 +365,10 @@ Page {
             }
             Row {
                 spacing: 12
-                Text { text: model.isLocked ? "🔒" : "🔓"; font.pixelSize: 16
+                Icon { name: model.isLocked ? "lock" : "lock_open"; size: 16; color: model.isLocked ? Theme.danger : Theme.textHint; anchors.verticalCenter: parent.verticalCenter
                     MouseArea { anchors.fill: parent; onClicked: lock(mt, model.recipeId) }
                 }
-                Text { text: "🔄"; font.pixelSize: 16
+                Icon { name: "refresh"; size: 16; color: Theme.textHint; anchors.verticalCenter: parent.verticalCenter
                     MouseArea { anchors.fill: parent; onClicked: swap(mt, model.recipeId) }
                 }
             }
@@ -376,7 +379,7 @@ Page {
                 visible: true
                 Text {
                     anchors.centerIn: parent
-                    text: model.status === "completed" ? "✅ 已消耗" : "📌 标记完成"
+                    text: model.status === "completed" ? "已消耗" : "标记完成"
                     font.pixelSize: 10
                     color: "white"
                 }

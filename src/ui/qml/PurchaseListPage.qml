@@ -115,19 +115,32 @@ Page {
         }
     }
 
-    Rectangle {
-        anchors { bottom: parent.bottom; left: parent.left; right: parent.right; bottomMargin: 8 }
-        height: 44
-        radius: Theme.radiusLarge
-        color: model.count > 0 ? Theme.primary : Theme.textHint
-        Text { anchors.centerIn: parent; text: "确认采购 · 一键入库"; font.pixelSize: Theme.fontSizeBody; color: "white" }
-        MouseArea { anchors.fill: parent; onClicked: {
-            if (model.count === 0) return
-            var items = []
-            for (var i = 0; i < model.count; i++)
-                items.push({ ingredientId: model.get(i).ingredientId, bought: model.get(i).bought || 0 })
-            purchaseService.confirmPurchase(familyId, session.userId, items)
-            navStack.pop()
-        }}
+    Row {
+        anchors { bottom: parent.bottom; left: parent.left; right: parent.right; bottomMargin: 8; margins: Theme.spacingMedium }
+        spacing: 8
+
+        Rectangle {
+            width: 80; height: 44
+            radius: Theme.radiusLarge
+            color: Theme.bgCard
+            border { width: 1; color: Theme.borderLight }
+            Text { anchors.centerIn: parent; text: "返回"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary }
+            MouseArea { anchors.fill: parent; onClicked: navStack.pop() }
+        }
+
+        Rectangle {
+            width: parent.width - 88; height: 44
+            radius: Theme.radiusLarge
+            color: model.count > 0 ? Theme.primary : Theme.textHint
+            Text { anchors.centerIn: parent; text: "确认采购 · 一键入库"; font.pixelSize: Theme.fontSizeBody; color: "white" }
+            MouseArea { anchors.fill: parent; onClicked: {
+                if (model.count === 0) return
+                var items = []
+                for (var i = 0; i < model.count; i++)
+                    items.push({ ingredientId: model.get(i).ingredientId, bought: model.get(i).bought || 0 })
+                purchaseService.confirmPurchase(familyId, session.userId, items)
+                navStack.pop()
+            }}
+        }
     }
 }

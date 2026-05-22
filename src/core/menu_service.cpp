@@ -50,12 +50,10 @@ QVariantMap MenuService::getTodayMenu(const QString &familyId, const QString &da
                     item[QStringLiteral("itemId")]       = mi.id;
                     item[QStringLiteral("recipeId")]     = mi.recipe_id;
                     item[QStringLiteral("name")]         = recipe->name;
-                    // 实际摄入 = 每份营养 × 当前份数
-                    double perSv = defSv > 0 ? 1.0 / defSv : 0.5;
-                    item[QStringLiteral("calPerServing")]    = recipe->total_calories * perSv * sv;
-                    item[QStringLiteral("proPerServing")]    = recipe->total_protein  * perSv * sv;
-                    item[QStringLiteral("carbPerServing")]   = recipe->total_carbs    * perSv * sv;
-                    item[QStringLiteral("fatPerServing")]    = recipe->total_fat      * perSv * sv;
+                    item[QStringLiteral("calPer100")]    = recipe->total_calories * ratio;
+                    item[QStringLiteral("proPer100")]    = recipe->total_protein  * ratio;
+                    item[QStringLiteral("carbPer100")]   = recipe->total_carbs    * ratio;
+                    item[QStringLiteral("fatPer100")]    = recipe->total_fat      * ratio;
                     item[QStringLiteral("cookingTime")]   = recipe->cooking_time;
                     item[QStringLiteral("isLocked")]       = mi.is_locked;
                     item[QStringLiteral("status")]         = mi.status;

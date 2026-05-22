@@ -73,7 +73,7 @@ Page {
                 spacing: Theme.spacingSmall
                 Column {
                     Text { text: model.name; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary }
-                    Text { text: model.calPerServing.toFixed(0)+" kcal/份 · "+model.cookingTime+" min"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint }
+                    Text { text: model.calPer100.toFixed(0)+" kcal/100g · "+model.cookingTime+" min · "+(model.servings||2)+"人份"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint }
                 }
             }
             Text { text: ">"; font.pixelSize: Theme.fontSizeBody; color: Theme.textHint; anchors { right: parent.right; rightMargin: Theme.spacingMedium; verticalCenter: parent.verticalCenter } }

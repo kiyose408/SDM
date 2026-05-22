@@ -14,20 +14,35 @@ FridgeService::FridgeService(InventoryBatchRepository *ib, IngredientRepository 
     : BaseService(parent), ibRepo_(ib), ingRepo_(ir) {}
 
 QVariantList FridgeService::getStock(const QString &familyId) {
-    QVariantList list;
+    // 按食材聚合（同食材多批次合并）
+    struct AggEntry {
+        double qty = 0;
+        QString unit;
+        QString earliestDate; // 最早的入库日期
+    };
+    QMap<QString, AggEntry> agg;
+    QMap<QString, QPair<QString, QString>> meta; // ingredientId → (name, category)
+
     auto batches = ibRepo_->getFamilyInventory(familyId);
     for (const auto &b : batches) {
-        QVariantMap m;
-        m[QStringLiteral("id")]           = b.id;
-        m[QStringLiteral("ingredientId")]  = b.ingredient_id;
-        m[QStringLiteral("name")]         = b.ingredient_name;
-        m[QStringLiteral("category")]     = b.ingredient_category;
-        m[QStringLiteral("quantity")]     = b.batch_quantity;
-        m[QStringLiteral("unit")]         = b.unit;
-        m[QStringLiteral("expiryDate")]   = b.expiry_date;
-        m[QStringLiteral("purchaseDate")] = b.purchase_date;
-        m[QStringLiteral("source")]       = b.source;
-        list.append(m);
+        agg[b.ingredient_id].qty += b.batch_quantity;
+        agg[b.ingredient_id].unit = b.unit;
+        if (agg[b.ingredient_id].earliestDate.isEmpty() || b.purchase_date < agg[b.ingredient_id].earliestDate)
+            agg[b.ingredient_id].earliestDate = b.purchase_date;
+        meta[b.ingredient_id] = {b.ingredient_name, b.ingredient_category};
+    }
+
+    QVariantList list;
+    for (auto it = agg.begin(); it != agg.end(); ++it) {
+        auto m = meta.value(it.key());
+        QVariantMap item;
+        item[QStringLiteral("ingredientId")] = it.key();
+        item[QStringLiteral("name")]         = m.first;
+        item[QStringLiteral("category")]     = m.second;
+        item[QStringLiteral("quantity")]     = it->qty;
+        item[QStringLiteral("unit")]         = it->unit;
+        item[QStringLiteral("purchaseDate")] = it->earliestDate;
+        list.append(item);
     }
     return list;
 }

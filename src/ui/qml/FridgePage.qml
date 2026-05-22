@@ -17,7 +17,25 @@ Page {
         if (fams.length > 0) familyId = fams[0].familyId
         model.clear()
         var items = fridgeService.getStock(familyId)
-        for (var i = 0; i < items.length; i++) model.append(items[i])
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i]
+            // 计算入库天数
+            var days = 0
+            if (item.purchaseDate) {
+                var pd = new Date(item.purchaseDate)
+                var now = new Date()
+                days = Math.floor((now - pd) / 86400000)
+            }
+            item.ageDays = days
+            model.append(item)
+        }
+    }
+
+    // 入库天数 → 颜色
+    function ageColor(days) {
+        if (days < 3) return "#64C288"     // 新鲜绿
+        if (days < 7) return "#F9D07B"     // 注意黄
+        return "#E86B6B"                   // 警惕红
     }
 
     ListModel { id: model }
@@ -32,51 +50,72 @@ Page {
     Text {
         anchors.centerIn: parent
         visible: model.count === 0
-        text: "冰箱空空如也 — 去首页生成菜单\n再点采购清单一键入库"
+        text: "冰箱空空如也\n去首页生成菜单 → 采购清单 → 一键入库"
         horizontalAlignment: Text.AlignHCenter
         font.pixelSize: Theme.fontSizeBody
         color: Theme.textHint
     }
 
-    ListView {
-        anchors { top: parent.top; topMargin: 50; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium; bottom: parent.bottom; bottomMargin: 60 }
-        spacing: 4
+    GridView {
+        id: grid
+        anchors { top: parent.top; topMargin: 50; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium; bottom: parent.bottom }
+        cellWidth: (grid.width - Theme.spacingSmall * 2) / 3
+        cellHeight: 76
         model: model
         delegate: Rectangle {
-            width: ListView.view.width
-            height: 52
+            width: grid.cellWidth - 4
+            height: 68
             radius: Theme.radiusSmall
             color: Theme.bgCard
             border { width: 1; color: Theme.borderLight }
-            Row {
-                anchors { left: parent.left; leftMargin: 12; verticalCenter: parent.verticalCenter }
-                spacing: Theme.spacingMedium
-                Text {
-                    text: "●"
-                    font.pixelSize: 10
-                    color: {
-                        switch(model.category) {
-                            case "meat":      return "#D32F2F"
-                            case "seafood":   return "#1976D2"
-                            case "vegetable": return "#388E3C"
-                            case "staple":    return "#F57C00"
-                            case "dairy":     return "#7B1FA2"
-                            case "condiment": return "#757575"
-                            default:          return "#999999"
-                        }
-                    }
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-                Column { anchors.verticalCenter: parent.verticalCenter
-                    Text { text: model.name; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary }
+
+            Rectangle {
+                anchors { top: parent.top; left: parent.left; right: parent.right }
+                height: 3
+                radius: Theme.radiusSmall
+                color: ageColor(model.ageDays || 0)
+            }
+
+            Column {
+                anchors { fill: parent; topMargin: 7; leftMargin: 8; rightMargin: 4 }
+                spacing: 1
+
+                Row { spacing: 4
+                    Rectangle { width: 8; height: 8; radius: 4; color: catColor(model.category); anchors.verticalCenter: parent.verticalCenter }
                     Text {
-                        text: model.quantity.toFixed(0) + " " + model.unit + " · " + (model.expiryDate || "无过期日")
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.textHint
+                        text: model.name
+                        font.pixelSize: Theme.fontSizeBody
+                        color: Theme.textPrimary
+                        elide: Text.ElideRight
+                        width: grid.cellWidth - 24
                     }
+                }
+
+                Text {
+                    text: model.quantity.toFixed(0) + " " + model.unit
+                    font.pixelSize: Theme.fontSizeBody
+                    color: Theme.textPrimary
+                    font.bold: true
+                }
+
+                Text {
+                    text: model.ageDays > 0 ? "入库 " + model.ageDays + " 天" : "今日入库"
+                    font.pixelSize: Theme.fontSizeSmall
+                    color: ageColor(model.ageDays || 0)
                 }
             }
         }
     }
 
+    function catColor(cat) {
+        switch(cat) {
+            case "meat":      return "#D32F2F"
+            case "seafood":   return "#1976D2"
+            case "vegetable": return "#388E3C"
+            case "staple":    return "#F57C00"
+            case "dairy":     return "#7B1FA2"
+            case "condiment": return "#757575"
+            default:          return "#999999"
+        }
+    }
 }

@@ -200,15 +200,50 @@ Page {
                 }
                 Text { text: "g"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint; anchors.verticalCenter: parent.verticalCenter }
             }
-            Rectangle { width: parent.width; height: 36; radius: Theme.radiusLarge; color: Theme.primary
-                Text { anchors.centerIn: parent; text: "确认更新"; font.pixelSize: Theme.fontSizeBody; color: "white" }
-                MouseArea { anchors.fill: parent; onClicked: {
-                    var n = parseFloat(newQtyInput.text)
-                    if (isNaN(n) || n < 0) n = 0
-                    fridgeService.calibrateStock(familyId, calPopup.ingId, n, session.userId)
-                    calPopup.close()
-                    refresh()
-                }}
+            Row {
+                width: parent.width; spacing: 8
+                Rectangle { width: (parent.width - 8) / 2; height: 36; radius: Theme.radiusLarge; color: Theme.danger
+                    Text { anchors.centerIn: parent; text: "清空"; font.pixelSize: Theme.fontSizeBody; color: "white" }
+                    MouseArea { anchors.fill: parent; onClicked: confirmClear.open() }
+                }
+                Rectangle { width: (parent.width - 8) / 2; height: 36; radius: Theme.radiusLarge; color: Theme.primary
+                    Text { anchors.centerIn: parent; text: "确认更新"; font.pixelSize: Theme.fontSizeBody; color: "white" }
+                    MouseArea { anchors.fill: parent; onClicked: {
+                        var n = parseFloat(newQtyInput.text)
+                        if (isNaN(n) || n < 0) n = 0
+                        fridgeService.calibrateStock(familyId, calPopup.ingId, n, session.userId)
+                        calPopup.close()
+                        refresh()
+                    }}
+                }
+            }
+            // 清空确认弹窗
+            Popup {
+                id: confirmClear
+                width: 240; height: 130
+                x: (parent.width - width) / 2; y: 20
+                modal: true; closePolicy: Popup.CloseOnEscape
+                background: Rectangle { color: Theme.bgCard; radius: Theme.radiusMedium; border { width: 1; color: Theme.danger } }
+                Column {
+                    anchors { fill: parent; topMargin: 16; leftMargin: 16; rightMargin: 16 }
+                    spacing: 12
+                    Text { text: "确认清空\"" + calPopup.ingName + "\"？"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; width: parent.width; wrapMode: Text.WordWrap }
+                    Row { spacing: 8
+                        Rectangle { width: (parent.width - 8) / 2; height: 32; radius: Theme.radiusSmall; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
+                            Text { anchors.centerIn: parent; text: "取消"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint }
+                            MouseArea { anchors.fill: parent; onClicked: confirmClear.close() }
+                        }
+                        Rectangle { width: (parent.width - 8) / 2; height: 32; radius: Theme.radiusSmall; color: Theme.danger
+                            Text { anchors.centerIn: parent; text: "确认清空"; font.pixelSize: Theme.fontSizeSmall; color: "white" }
+                            MouseArea { anchors.fill: parent; onClicked: {
+                                fridgeService.calibrateStock(familyId, calPopup.ingId, 0, session.userId)
+                                confirmClear.close()
+                                calPopup.close()
+                                refresh()
+                            }}
+                        }
+                    }
+                }
             }
         }
     }

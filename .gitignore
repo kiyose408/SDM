@@ -47,3 +47,4 @@ Thumbs.db
 # Dependency Directories (node_modules for QML plugins, etc)
 /vendor/
 /node_modules/
+/dist/

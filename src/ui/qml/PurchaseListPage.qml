@@ -157,7 +157,7 @@ Page {
     // ═══ 小票确认弹窗 ═══
     Popup {
         id: receiptPopup
-        width: Math.min(parent.width - 20, 360)
+        width: Math.min(parent.width - 40, 280)
         height: Math.min(receiptModel.count * 28 + 120, parent.height * 0.7)
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
@@ -185,35 +185,35 @@ Page {
                 height: receiptModel.count * 28
                 model: receiptModel
                 interactive: false
-                delegate: Row {
+                delegate: Item {
                     width: parent.width; height: 24
-                    spacing: 4
                     Text {
-                        text: model.name
+                        id: qtyText
+                        text: model.qty + "g"
+                        anchors { right: parent.right; verticalCenter: parent.verticalCenter }
                         font.pixelSize: Theme.fontSizeBody
                         color: Theme.textPrimary
-                        elide: Text.ElideRight
-                        width: (parent.width - 50) / 2
                     }
                     Text {
-                        // 生成连接点
-                        text: {
-                            var dots = ""
-                            for (var j = 0; j < 30; j++) dots += "·"
-                            return dots
-                        }
+                        id: nameText
+                        text: model.name
+                        anchors { left: parent.left; verticalCenter: parent.verticalCenter }
+                        font.pixelSize: Theme.fontSizeBody
+                        color: Theme.textPrimary
+                    }
+                    Text {
+                        anchors { left: nameText.right; right: qtyText.left; leftMargin: 4; rightMargin: 4; verticalCenter: parent.verticalCenter }
                         font.pixelSize: Theme.fontSizeSmall
                         color: Theme.textHint
-                        anchors.verticalCenter: parent.verticalCenter
                         elide: Text.ElideNone
-                        clip: true
-                    }
-                    Text {
-                        text: model.qty + "g"
-                        font.pixelSize: Theme.fontSizeBody
-                        color: Theme.textPrimary
-                        width: 50
-                        horizontalAlignment: Text.AlignRight
+                        maximumLineCount: 1
+                        // 根据可用空间计算点数
+                        text: {
+                            var maxDots = Math.max(0, Math.floor(width / 5))
+                            var s = ""
+                            for (var j = 0; j < maxDots; j++) s += "·"
+                            return s
+                        }
                     }
                 }
             }

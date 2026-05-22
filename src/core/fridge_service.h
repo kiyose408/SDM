@@ -31,6 +31,10 @@ public:
     /// 采购清单一键入库
     Q_INVOKABLE int importFromPurchase(const QString &familyId, const QString &addedBy);
 
+    /// 校准库存：将指定食材总量设为 newTotal（清旧批次→建新批次）
+    Q_INVOKABLE bool calibrateStock(const QString &familyId, const QString &ingredientId,
+                                     double newTotal, const QString &operatorId);
+
 private:
     InventoryBatchRepository *ibRepo_;
     IngredientRepository *ingRepo_;

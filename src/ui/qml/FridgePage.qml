@@ -7,6 +7,7 @@ Page {
     title: "冰箱"
     property string familyId: ""
     property string filterCat: "all"
+    property bool calibrateMode: false
 
     background: Rectangle { color: Theme.bgPage }
 
@@ -45,10 +46,19 @@ Page {
     ListModel { id: model }
 
     Row {
-        anchors { top: parent.top; topMargin: Theme.spacingMedium; left: parent.left; leftMargin: Theme.spacingMedium }
+        anchors { top: parent.top; topMargin: Theme.spacingMedium; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium }
         spacing: Theme.spacingSmall
         Icon { name: "kitchen"; size: 24; color: Theme.primary; anchors.verticalCenter: parent.verticalCenter }
         Text { text: "冰箱 · " + model.count + " 项"; font.pixelSize: Theme.fontSizeTitle; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
+        // 校准按钮
+        Rectangle {
+            anchors { right: parent.right; verticalCenter: parent.verticalCenter }
+            width: 66; height: 28; radius: 14
+            color: calibrateMode ? Theme.danger : Theme.bgCard
+            border { width: 1; color: calibrateMode ? Theme.danger : Theme.borderLight }
+            Text { anchors.centerIn: parent; text: calibrateMode ? "退出" : "校准"; font.pixelSize: Theme.fontSizeSmall; color: calibrateMode ? "white" : Theme.textPrimary }
+            MouseArea { anchors.fill: parent; onClicked: calibrateMode = !calibrateMode }
+        }
     }
 
     Text {
@@ -93,7 +103,7 @@ Page {
             height: 68
             radius: Theme.radiusSmall
             color: Theme.bgCard
-            border { width: 1; color: Theme.borderLight }
+            border { width: 1; color: calibrateMode ? Theme.danger : Theme.borderLight }
 
             Rectangle {
                 anchors { top: parent.top; left: parent.left; right: parent.right }
@@ -130,6 +140,17 @@ Page {
                     color: ageColor(model.ageDays || 0)
                 }
             }
+
+            MouseArea {
+                anchors.fill: parent
+                visible: calibrateMode
+                onClicked: {
+                    calPopup.ingId = model.ingredientId
+                    calPopup.ingName = model.name
+                    calPopup.curQty = model.quantity
+                    calPopup.open()
+                }
+            }
         }
     }
 
@@ -142,6 +163,47 @@ Page {
             case "dairy":     return "#7B1FA2"
             case "condiment": return "#757575"
             default:          return "#999999"
+        }
+    }
+
+    // ═══ 校准弹窗 ═══
+    Popup {
+        id: calPopup
+        width: Math.min(parent.width - 40, 320)
+        height: 170
+        x: (parent.width - width) / 2; y: parent.height / 2 - 85
+        modal: true; closePolicy: Popup.CloseOnEscape
+        property string ingId: ""
+        property string ingName: ""
+        property double curQty: 0
+
+        background: Rectangle { color: Theme.bgCard; radius: Theme.radiusMedium; border { width: 1; color: Theme.borderLight } }
+        Column {
+            anchors { fill: parent; topMargin: 16; leftMargin: 16; rightMargin: 16 }
+            spacing: 12
+            Text { text: calPopup.ingName; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; font.bold: true }
+            Text { text: "当前库存: " + calPopup.curQty.toFixed(0) + "g"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint }
+            Row { spacing: 8
+                Text { text: "新数量:"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
+                Rectangle { width: 120; height: 36; radius: Theme.radiusSmall; color: Theme.bgPage; border { width: 1; color: Theme.borderLight }
+                    TextInput {
+                        id: newQtyInput; anchors { left: parent.left; leftMargin: 8; verticalCenter: parent.verticalCenter }
+                        font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary
+                        text: calPopup.curQty.toFixed(0)
+                    }
+                }
+                Text { text: "g"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint; anchors.verticalCenter: parent.verticalCenter }
+            }
+            Rectangle { width: parent.width; height: 36; radius: Theme.radiusLarge; color: Theme.primary
+                Text { anchors.centerIn: parent; text: "确认更新"; font.pixelSize: Theme.fontSizeBody; color: "white" }
+                MouseArea { anchors.fill: parent; onClicked: {
+                    var n = parseFloat(newQtyInput.text)
+                    if (isNaN(n) || n < 0) n = 0
+                    fridgeService.calibrateStock(familyId, calPopup.ingId, n, session.userId)
+                    calPopup.close()
+                    refresh()
+                }}
+            }
         }
     }
 }

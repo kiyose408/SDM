@@ -131,4 +131,40 @@ int FridgeService::importFromPurchase(const QString &familyId, const QString &ad
     return count;
 }
 
+bool FridgeService::calibrateStock(const QString &familyId, const QString &ingredientId,
+                                     double newTotal, const QString &operatorId) {
+    if (newTotal < 0) newTotal = 0;
+
+    double currentTotal = 0;
+    auto batches = ibRepo_->getByFamilyAndIngredient(familyId, ingredientId);
+    for (const auto &b : batches) currentTotal += b.batch_quantity;
+
+    // 数量无变化则跳过
+    if (qAbs(currentTotal - newTotal) < 0.01) return true;
+
+    // 清空旧批次
+    for (const auto &b : batches) ibRepo_->softDelete(b.id);
+
+    // 新建校准批次
+    if (newTotal > 0) {
+        auto ing = ingRepo_->getById(ingredientId);
+        QString unit = ing.has_value() && !ing->unit.isEmpty() ? ing->unit : QStringLiteral("g");
+
+        InventoryBatch nb;
+        nb.id = generateUuid();
+        nb.family_id       = familyId;
+        nb.ingredient_id   = ingredientId;
+        nb.batch_quantity   = newTotal;
+        nb.unit             = unit;
+        nb.purchase_date    = QDateTime::currentDateTimeUtc().toString(Qt::ISODate).left(10);
+        nb.source           = QStringLiteral("calibration");
+        nb.added_by         = operatorId;
+        nb.created_at       = utcNow();
+        nb.updated_at       = nb.created_at;
+        ibRepo_->save(nb);
+    }
+
+    return true;
+}
+
 } // namespace smart_diet

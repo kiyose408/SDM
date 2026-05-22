@@ -41,68 +41,82 @@ Page {
         color: Theme.textHint
     }
 
-    ListView {
-        anchors { top: parent.top; topMargin: 50; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium; bottom: parent.bottom; bottomMargin: 60 }
-        spacing: 4
+    GridView {
+        id: grid
+        anchors { top: parent.top; topMargin: 50; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium; bottom: parent.bottom; bottomMargin: 56 }
+        cellWidth: (grid.width - 8) / 2
+        cellHeight: 90
         model: model
         delegate: Rectangle {
-            width: ListView.view.width
-            height: 44
+            width: grid.cellWidth - 4
+            height: 82
             radius: Theme.radiusSmall
             color: Theme.bgCard
             border { width: 1; color: Theme.borderLight }
-            Row {
-                anchors { left: parent.left; leftMargin: 12; verticalCenter: parent.verticalCenter }
-                spacing: Theme.spacingSmall
-                Text {
-                    text: "●"; font.pixelSize: 8
-                    color: {
-                        switch(model.cat) {
-                            case "meat":      return "#D32F2F"
-                            case "seafood":   return "#1976D2"
-                            case "vegetable": return "#388E3C"
-                            case "staple":    return "#F57C00"
-                            case "dairy":     return "#7B1FA2"
-                            case "condiment": return "#757575"
-                            default:          return "#999999"
-                        }
+
+            // 类别色条
+            Rectangle {
+                anchors { top: parent.top; left: parent.left; right: parent.right }
+                height: 3; radius: Theme.radiusSmall
+                color: {
+                    switch(model.cat) {
+                        case "meat":      return "#D32F2F"
+                        case "seafood":   return "#1976D2"
+                        case "vegetable": return "#388E3C"
+                        case "staple":    return "#F57C00"
+                        case "dairy":     return "#7B1FA2"
+                        case "condiment": return "#757575"
+                        default:          return "#999999"
                     }
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-                Text {
-                    text: model.name + "  需 " + model.need.toFixed(0) + "g"
-                    font.pixelSize: Theme.fontSizeBody
-                    color: Theme.textPrimary
-                    anchors.verticalCenter: parent.verticalCenter
                 }
             }
-            Row {
-                anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
+
+            Column {
+                anchors { fill: parent; topMargin: 8; leftMargin: 8; rightMargin: 6 }
                 spacing: 2
-                Rectangle { width: 20; height: 20; radius: 10; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
-                    Text { text: "−"; anchors.centerIn: parent; font.pixelSize: 12; color: Theme.textHint }
-                    MouseArea { anchors.fill: parent; onClicked: {
-                        model.bought = Math.max(0, (model.bought || 0) - 50)
-                    }}
-                }
+
                 Text {
-                    text: (model.bought || 0).toFixed(0) + "g"
-                    font.pixelSize: Theme.fontSizeSmall
-                    color: (model.bought || 0) >= model.need ? Theme.primary : Theme.secondary
-                    anchors.verticalCenter: parent.verticalCenter
+                    text: model.name
+                    font.pixelSize: Theme.fontSizeBody
+                    color: Theme.textPrimary
+                    elide: Text.ElideRight
+                    width: parent.width
                 }
-                Rectangle { width: 20; height: 20; radius: 10; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
-                    Text { text: "+"; anchors.centerIn: parent; font.pixelSize: 12; color: Theme.textHint }
-                    MouseArea { anchors.fill: parent; onClicked: {
-                        model.bought = (model.bought || 0) + 50
-                    }}
+
+                Text {
+                    text: "需 " + model.need.toFixed(0) + "g"
+                    font.pixelSize: Theme.fontSizeSmall
+                    color: Theme.textHint
+                }
+
+                Row {
+                    spacing: 2
+                    Rectangle { width: 22; height: 22; radius: 11; color: Theme.bgPage; border { width: 1; color: Theme.borderLight }
+                        Text { text: "−"; anchors.centerIn: parent; font.pixelSize: 12; color: Theme.textHint }
+                        MouseArea { anchors.fill: parent; onClicked: {
+                            model.bought = Math.max(0, (model.bought || 0) - 50)
+                        }}
+                    }
+                    Text {
+                        text: (model.bought || 0).toFixed(0) + "g"
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: (model.bought || 0) >= model.need ? Theme.primary : Theme.secondary
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 36; horizontalAlignment: Text.AlignHCenter
+                    }
+                    Rectangle { width: 22; height: 22; radius: 11; color: Theme.bgPage; border { width: 1; color: Theme.borderLight }
+                        Text { text: "+"; anchors.centerIn: parent; font.pixelSize: 12; color: Theme.textHint }
+                        MouseArea { anchors.fill: parent; onClicked: {
+                            model.bought = (model.bought || 0) + 50
+                        }}
+                    }
                 }
             }
         }
     }
 
     Rectangle {
-        anchors { bottom: parent.bottom; left: parent.left; right: parent.right; bottomMargin: 10 }
+        anchors { bottom: parent.bottom; left: parent.left; right: parent.right; bottomMargin: 8 }
         height: 44
         radius: Theme.radiusLarge
         color: model.count > 0 ? Theme.primary : Theme.textHint
@@ -110,11 +124,10 @@ Page {
         MouseArea { anchors.fill: parent; onClicked: {
             if (model.count === 0) return
             var items = []
-            for (var i = 0; i < model.count; i++) {
+            for (var i = 0; i < model.count; i++)
                 items.push({ ingredientId: model.get(i).ingredientId, bought: model.get(i).bought || 0 })
-            }
             purchaseService.confirmPurchase(familyId, session.userId, items)
             navStack.pop()
-        } }
+        }}
     }
 }

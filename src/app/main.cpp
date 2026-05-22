@@ -19,6 +19,7 @@
 #include "data/tag_repository.h"
 #include "data/menu_repository.h"
 #include "core/menu_service.h"
+
 #include "core/family_service.h"
 #include "core/ingredient_service.h"
 #include "core/recipe_service.h"
@@ -68,6 +69,7 @@ int main(int argc, char *argv[])
     auto *menuItemRepo     = new smart_diet::MenuItemRepository(&app);
     auto *menuService      = new smart_diet::MenuService(dailyMenuRepo, menuItemRepo, recipeRepo, &app);
 
+
     QObject::connect(authService, &smart_diet::AuthService::userLoggedIn,
                      session, [session](const QString &userId) {
                          session->setSession(userId, QString());
@@ -80,6 +82,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("recipeService"), recipeService);
     engine.rootContext()->setContextProperty(QStringLiteral("tagService"), tagService);
     engine.rootContext()->setContextProperty(QStringLiteral("menuService"), menuService);
+
 
     // ================================================================
     // 登录成功后 → 关闭认证窗口 → 加载主界面

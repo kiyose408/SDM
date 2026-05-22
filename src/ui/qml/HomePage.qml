@@ -12,7 +12,6 @@ Page {
     property int lunchCount: 4
     property int dinnerCount: 4
     property string dietMode: "maintenance"
-
     background: Rectangle { color: Theme.bgPage }
 
     Component.onCompleted: {
@@ -373,4 +372,5 @@ Page {
             }
         }
     }
+
 }

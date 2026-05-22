@@ -225,27 +225,33 @@ Page {
                 y: (parent.height - height) / 2 > 0 ? (parent.height - height) / 2 : 10
                 modal: true; closePolicy: Popup.CloseOnEscape
                 background: Rectangle { color: Theme.bgCard; radius: Theme.radiusMedium; border { width: 2; color: Theme.danger } }
-                contentItem: Column {
-                    anchors.centerIn: parent
-                    spacing: 14
-                    Text {
-                        text: "确认清空 \"" + calPopup.ingName + "\"？"
-                        font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary
-                    }
-                    Row {
-                        spacing: 12
-                        Rectangle { width: 100; height: 34; radius: Theme.radiusSmall; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
-                            Text { anchors.centerIn: parent; text: "取消"; font.pixelSize: Theme.fontSizeBody; color: Theme.textHint }
-                            MouseArea { anchors.fill: parent; onClicked: confirmClear.close() }
+                padding: 16
+                contentItem: Item {
+                    Column {
+                        anchors.centerIn: parent
+                        width: parent.width
+                        spacing: 14
+                        Text {
+                            text: "确认清空 \"" + calPopup.ingName + "\"？"
+                            font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary
+                            anchors.horizontalCenter: parent.horizontalCenter
                         }
-                        Rectangle { width: 100; height: 34; radius: Theme.radiusSmall; color: Theme.danger
-                            Text { anchors.centerIn: parent; text: "确认清空"; font.pixelSize: Theme.fontSizeBody; color: "white" }
-                            MouseArea { anchors.fill: parent; onClicked: {
-                                fridgeService.calibrateStock(familyId, calPopup.ingId, 0, session.userId)
-                                confirmClear.close()
-                                calPopup.close()
-                                refresh()
-                            }}
+                        Row {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            spacing: 12
+                            Rectangle { width: 100; height: 34; radius: Theme.radiusSmall; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
+                                Text { anchors.centerIn: parent; text: "取消"; font.pixelSize: Theme.fontSizeBody; color: Theme.textHint }
+                                MouseArea { anchors.fill: parent; onClicked: confirmClear.close() }
+                            }
+                            Rectangle { width: 100; height: 34; radius: Theme.radiusSmall; color: Theme.danger
+                                Text { anchors.centerIn: parent; text: "确认清空"; font.pixelSize: Theme.fontSizeBody; color: "white" }
+                                MouseArea { anchors.fill: parent; onClicked: {
+                                    fridgeService.calibrateStock(familyId, calPopup.ingId, 0, session.userId)
+                                    confirmClear.close()
+                                    calPopup.close()
+                                    refresh()
+                                }}
+                            }
                         }
                     }
                 }

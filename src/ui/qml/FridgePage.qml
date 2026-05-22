@@ -25,6 +25,7 @@ Page {
         var items = fridgeService.getStock(familyId)
         for (var i = 0; i < items.length; i++) {
             var item = items[i]
+            if (item.quantity <= 0) continue
             if (filterCat !== "all" && item.category !== filterCat) continue
             var days = 0
             if (item.purchaseDate) {
@@ -242,7 +243,7 @@ Page {
             Row { spacing: 8
                 Text { text: "新数量:"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
                 Rectangle { width: 120; height: 36; radius: Theme.radiusSmall; color: Theme.bgPage; border { width: 1; color: Theme.borderLight }
-                    TextInput { id: newQtyInput; anchors { left: parent.left; leftMargin: 8; verticalCenter: parent.verticalCenter }; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; text: calPopup.curQty.toFixed(0) }
+                    TextInput { id: newQtyInput; anchors { left: parent.left; leftMargin: 8; verticalCenter: parent.verticalCenter } font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; text: calPopup.curQty.toFixed(0) }
                 }
             }
             Rectangle { width: parent.width; height: 36; radius: Theme.radiusLarge; color: Theme.primary

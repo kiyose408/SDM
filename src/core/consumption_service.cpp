@@ -7,6 +7,7 @@
 #include "utils/uuid_utils.h"
 #include "utils/time_utils.h"
 #include <QSqlQuery>
+#include <QSqlError>
 #include <QDateTime>
 #include <QDebug>
 
@@ -71,31 +72,45 @@ bool ConsumptionService::consumeRecipe(const QString &menuItemId, const QString 
                 batch->updated_at = now;
                 ibRepo_->update(*batch);
 
-                QSqlQuery lq(DatabaseManager::instance().database());
-                lq.prepare("INSERT INTO inventory_logs (id, family_id, batch_id, ingredient_id, operation, quantity_change, quantity_before, quantity_after, reason, related_menu_id, operator_id, snapshot_recipe_name, snapshot_ingredient_name, snapshot_servings, created_at, updated_at) VALUES (:id,:fid,:bid,:iid,'deduct',:chg,:bef,:aft,:rsn,:mid,:oid,:rn,:in,:sv,:ca,:ua)");
-                lq.bindValue(":id",  generateUuid());
-                lq.bindValue(":fid", familyId);
-                lq.bindValue(":bid", b.id);
-                lq.bindValue(":iid", ri.ingredient_id);
-                lq.bindValue(":chg", -take);
-                lq.bindValue(":bef", before);
-                lq.bindValue(":aft", batch->batch_quantity);
-                lq.bindValue(":rsn", reason);
-                lq.bindValue(":mid", menuItemId);
-                lq.bindValue(":oid", operatorId);
-                lq.bindValue(":rn",  recipe->name);
-                lq.bindValue(":in",  ing->name);
-                lq.bindValue(":sv",  servings);
-                lq.bindValue(":ca",  now);
-                lq.bindValue(":ua",  now);
-                if (!lq.exec()) { qWarning() << "[Consumption] log insert failed"; allOk = false; }
+                auto execLog = [&]() -> bool {
+                    QSqlQuery lq(DatabaseManager::instance().database());
+                    lq.prepare("INSERT INTO inventory_logs (id, family_id, batch_id, ingredient_id, operation, quantity_change, quantity_before, quantity_after, reason, related_menu_id, operator_id, snapshot_recipe_name, snapshot_ingredient_name, snapshot_servings, created_at, updated_at) VALUES (:id,:fid,:bid,:iid,'deduct',:chg,:bef,:aft,:rsn,:mid,:oid,:rn,:in,:sv,:ca,:ua)");
+                    lq.bindValue(":id",  generateUuid());
+                    lq.bindValue(":fid", familyId);
+                    lq.bindValue(":bid", b.id);
+                    lq.bindValue(":iid", ri.ingredient_id);
+                    lq.bindValue(":chg", -take);
+                    lq.bindValue(":bef", before);
+                    lq.bindValue(":aft", batch->batch_quantity);
+                    lq.bindValue(":rsn", reason);
+                    lq.bindValue(":mid", menuItemId);
+                    lq.bindValue(":oid", operatorId);
+                    lq.bindValue(":rn",  recipe->name);
+                    lq.bindValue(":in",  ing->name);
+                    lq.bindValue(":sv",  servings);
+                    lq.bindValue(":ca",  now);
+                    lq.bindValue(":ua",  now);
+                    if (!lq.exec()) {
+                        // 表不存在则自动创建
+                        QSqlQuery ct(DatabaseManager::instance().database());
+                        ct.exec("CREATE TABLE IF NOT EXISTS inventory_logs (id TEXT PRIMARY KEY, family_id TEXT NOT NULL, batch_id TEXT, ingredient_id TEXT NOT NULL, operation TEXT NOT NULL, quantity_change REAL NOT NULL, quantity_before REAL NOT NULL, quantity_after REAL NOT NULL, reason TEXT NOT NULL, related_menu_id TEXT, operator_id TEXT NOT NULL, snapshot_recipe_amount REAL, snapshot_servings REAL, snapshot_recipe_name TEXT, snapshot_ingredient_name TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)");
+                        if (!lq.exec()) {
+                            qWarning() << "[Consumption] log insert failed:" << lq.lastError().text();
+                            return false;
+                        }
+                    }
+                    return true;
+                };
+                execLog();
             }
             remaining -= take;
         }
-        if (remaining > 0) allOk = false;
+        if (remaining > 0) {
+            qWarning() << "[Consumption] 库存不足，部分食材未完全扣除";
+        }
     }
 
-    if (allOk) miRepo_->updateStatus(menuItemId, QStringLiteral("completed"));
+    miRepo_->updateStatus(menuItemId, QStringLiteral("completed"));
 
     return allOk;
 }

@@ -14,32 +14,36 @@ FridgeService::FridgeService(InventoryBatchRepository *ib, IngredientRepository 
     : BaseService(parent), ibRepo_(ib), ingRepo_(ir) {}
 
 QVariantList FridgeService::getStock(const QString &familyId) {
-    // 按食材聚合（同食材多批次合并）
-    struct AggEntry {
-        double qty = 0;
-        QString unit;
-        QString earliestDate;
-    };
-    QMap<QString, AggEntry> agg;
+    QMap<QString, double> aggQty;
+    QMap<QString, QString> aggUnit, aggDate, aggName, aggCat;
 
     auto batches = ibRepo_->getFamilyInventory(familyId);
     for (const auto &b : batches) {
-        agg[b.ingredient_id].qty += b.batch_quantity;
-        agg[b.ingredient_id].unit = b.unit;
-        if (agg[b.ingredient_id].earliestDate.isEmpty() || b.purchase_date < agg[b.ingredient_id].earliestDate)
-            agg[b.ingredient_id].earliestDate = b.purchase_date;
+        aggQty[b.ingredient_id] += b.batch_quantity;
+        if (aggUnit[b.ingredient_id].isEmpty()) aggUnit[b.ingredient_id] = b.unit;
+        if (aggDate[b.ingredient_id].isEmpty() || b.purchase_date < aggDate[b.ingredient_id])
+            aggDate[b.ingredient_id] = b.purchase_date;
+        if (!b.ingredient_name.isEmpty()) aggName[b.ingredient_id] = b.ingredient_name;
+        if (!b.ingredient_category.isEmpty()) aggCat[b.ingredient_id] = b.ingredient_category;
     }
 
     QVariantList list;
-    for (auto it = agg.begin(); it != agg.end(); ++it) {
-        auto ing = ingRepo_->getById(it.key());
+    for (auto it = aggQty.begin(); it != aggQty.end(); ++it) {
+        const QString &iid = it.key();
+        QString iname = aggName.value(iid);
+        QString icat  = aggCat.value(iid);
+        if (iname.isEmpty()) {
+            auto ing = ingRepo_->getById(iid);
+            iname = ing.has_value() ? ing->name : QStringLiteral("未知食材");
+            icat  = ing.has_value() ? ing->category : QStringLiteral("other");
+        }
         QVariantMap item;
-        item[QStringLiteral("ingredientId")] = it.key();
-        item[QStringLiteral("name")]         = ing.has_value() ? ing->name : it.key();
-        item[QStringLiteral("category")]     = ing.has_value() ? ing->category : QStringLiteral("other");
-        item[QStringLiteral("quantity")]     = it->qty;
-        item[QStringLiteral("unit")]         = it->unit;
-        item[QStringLiteral("purchaseDate")] = it->earliestDate;
+        item[QStringLiteral("ingredientId")] = iid;
+        item[QStringLiteral("name")]         = iname;
+        item[QStringLiteral("category")]     = icat;
+        item[QStringLiteral("quantity")]     = it.value();
+        item[QStringLiteral("unit")]         = aggUnit.value(iid);
+        item[QStringLiteral("purchaseDate")] = aggDate.value(iid);
         list.append(item);
     }
     return list;

@@ -26,11 +26,8 @@ InventoryBatch InventoryBatchRepository::mapRow(const QSqlQuery &query) {
     b.version          = OrmHelper::readInt(query, QStringLiteral("version"));
     b.created_at       = OrmHelper::readString(query, QStringLiteral("created_at"));
     b.updated_at       = OrmHelper::readString(query, QStringLiteral("updated_at"));
-    // JOIN 字段可能不存在（纯 inventory_batches 查询时为空）
-    int nameIdx = query.record().indexOf(QStringLiteral("ingredient_name"));
-    b.ingredient_name = nameIdx >= 0 ? query.value(nameIdx).toString() : QString();
-    int catIdx = query.record().indexOf(QStringLiteral("ingredient_category"));
-    b.ingredient_category = catIdx >= 0 ? query.value(catIdx).toString() : QString();
+    b.ingredient_name  = OrmHelper::readString(query, QStringLiteral("ingredient_name"));
+    b.ingredient_category = OrmHelper::readString(query, QStringLiteral("ingredient_category"));
     return b;
 }
 

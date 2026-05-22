@@ -18,10 +18,9 @@ QVariantList FridgeService::getStock(const QString &familyId) {
     struct AggEntry {
         double qty = 0;
         QString unit;
-        QString earliestDate; // 最早的入库日期
+        QString earliestDate;
     };
     QMap<QString, AggEntry> agg;
-    QMap<QString, QPair<QString, QString>> meta; // ingredientId → (name, category)
 
     auto batches = ibRepo_->getFamilyInventory(familyId);
     for (const auto &b : batches) {
@@ -29,16 +28,15 @@ QVariantList FridgeService::getStock(const QString &familyId) {
         agg[b.ingredient_id].unit = b.unit;
         if (agg[b.ingredient_id].earliestDate.isEmpty() || b.purchase_date < agg[b.ingredient_id].earliestDate)
             agg[b.ingredient_id].earliestDate = b.purchase_date;
-        meta[b.ingredient_id] = {b.ingredient_name, b.ingredient_category};
     }
 
     QVariantList list;
     for (auto it = agg.begin(); it != agg.end(); ++it) {
-        auto m = meta.value(it.key());
+        auto ing = ingRepo_->getById(it.key());
         QVariantMap item;
         item[QStringLiteral("ingredientId")] = it.key();
-        item[QStringLiteral("name")]         = m.first;
-        item[QStringLiteral("category")]     = m.second;
+        item[QStringLiteral("name")]         = ing.has_value() ? ing->name : it.key();
+        item[QStringLiteral("category")]     = ing.has_value() ? ing->category : QStringLiteral("other");
         item[QStringLiteral("quantity")]     = it->qty;
         item[QStringLiteral("unit")]         = it->unit;
         item[QStringLiteral("purchaseDate")] = it->earliestDate;

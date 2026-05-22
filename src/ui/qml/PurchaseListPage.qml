@@ -182,19 +182,26 @@ Page {
 
                 ListView {
                     width: parent.width
-                    height: receiptModel.count * 28
+                    height: Math.min(receiptModel.count * 28, 220)
                     model: receiptModel
-                    interactive: false
-                    delegate: Item {
+                    clip: true
+                    delegate: Row {
                         width: parent.width; height: 24
                         Text {
-                            text: model.name + "  " + "··············································" + "  " + model.qty + "g"
+                            text: model.name + "  ··························································"
                             font.pixelSize: Theme.fontSizeBody
                             color: Theme.textPrimary
-                            anchors.fill: parent
+                            width: parent.width - 48
+                            elide: Text.ElideRight
                             verticalAlignment: Text.AlignVCenter
-                            elide: Text.ElideNone
-                            clip: true
+                        }
+                        Text {
+                            text: model.qty + "g"
+                            font.pixelSize: Theme.fontSizeBody
+                            color: Theme.textPrimary
+                            width: 48
+                            horizontalAlignment: Text.AlignRight
+                            verticalAlignment: Text.AlignVCenter
                         }
                     }
                 }

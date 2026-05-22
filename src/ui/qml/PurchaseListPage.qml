@@ -26,67 +26,95 @@ Page {
 
     ListModel { id: model }
 
-    Item {
-        anchors { fill: parent; margins: Theme.spacingMedium }
+    Row {
+        anchors { top: parent.top; topMargin: Theme.spacingMedium; left: parent.left; leftMargin: Theme.spacingMedium }
+        spacing: Theme.spacingSmall
+        Icon { name: "shopping_basket"; size: 24; color: Theme.primary; anchors.verticalCenter: parent.verticalCenter }
+        Text { text: "今日采购 · " + today; font.pixelSize: Theme.fontSizeTitle; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
+    }
 
-        Row {
-            spacing: Theme.spacingSmall
-            Icon { name: "shopping_basket"; size: 24; color: Theme.primary; anchors.verticalCenter: parent.verticalCenter }
-            Text { text: "今日采购 · " + today; font.pixelSize: Theme.fontSizeTitle; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
-        }
+    Text {
+        anchors.centerIn: parent
+        visible: model.count === 0
+        text: "无需采购 — 冰箱库存充足"
+        font.pixelSize: Theme.fontSizeBody
+        color: Theme.textHint
+    }
 
-        Text {
-            anchors { top: parent.top; topMargin: 40; horizontalCenter: parent.horizontalCenter }
-            visible: model.count === 0
-            text: "暂无菜单 — 请先生成全天菜单"
-            font.pixelSize: Theme.fontSizeBody
-            color: Theme.textHint
-        }
-
-        ListView {
-            anchors { top: parent.top; topMargin: 44; left: parent.left; right: parent.right; bottom: parent.bottom }
-            spacing: Theme.spacingSmall
-            model: model
-            delegate: Rectangle {
-                width: ListView.view.width
-                height: 40
-                radius: Theme.radiusSmall
-                color: Theme.bgCard
-                border { width: 1; color: Theme.borderLight }
-                Row {
-                    anchors { left: parent.left; leftMargin: 12; verticalCenter: parent.verticalCenter }
-                    spacing: Theme.spacingSmall
-                    Text {
-                        text: "●"
-                        font.pixelSize: 8
-                        color: {
-                            switch(model.cat) {
-                                case "meat":      return "#D32F2F"
-                                case "seafood":   return "#1976D2"
-                                case "vegetable": return "#388E3C"
-                                case "staple":    return "#F57C00"
-                                case "dairy":     return "#7B1FA2"
-                                case "condiment": return "#757575"
-                                default:          return "#999999"
-                            }
+    ListView {
+        anchors { top: parent.top; topMargin: 50; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium; bottom: parent.bottom; bottomMargin: 60 }
+        spacing: 4
+        model: model
+        delegate: Rectangle {
+            width: ListView.view.width
+            height: 44
+            radius: Theme.radiusSmall
+            color: Theme.bgCard
+            border { width: 1; color: Theme.borderLight }
+            Row {
+                anchors { left: parent.left; leftMargin: 12; verticalCenter: parent.verticalCenter }
+                spacing: Theme.spacingSmall
+                Text {
+                    text: "●"; font.pixelSize: 8
+                    color: {
+                        switch(model.cat) {
+                            case "meat":      return "#D32F2F"
+                            case "seafood":   return "#1976D2"
+                            case "vegetable": return "#388E3C"
+                            case "staple":    return "#F57C00"
+                            case "dairy":     return "#7B1FA2"
+                            case "condiment": return "#757575"
+                            default:          return "#999999"
                         }
-                        anchors.verticalCenter: parent.verticalCenter
                     }
-                    Text {
-                        text: model.name
-                        font.pixelSize: Theme.fontSizeBody
-                        color: Theme.textPrimary
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
-                    Item { width: 1; height: 1 }
-                    Text {
-                        text: model.amount
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.textHint
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                Text {
+                    text: model.name + "  需 " + model.need.toFixed(0) + "g"
+                    font.pixelSize: Theme.fontSizeBody
+                    color: Theme.textPrimary
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+            }
+            Row {
+                anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
+                spacing: 2
+                Rectangle { width: 20; height: 20; radius: 10; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
+                    Text { text: "−"; anchors.centerIn: parent; font.pixelSize: 12; color: Theme.textHint }
+                    MouseArea { anchors.fill: parent; onClicked: {
+                        model.bought = Math.max(0, (model.bought || 0) - 50)
+                    }}
+                }
+                Text {
+                    text: (model.bought || 0).toFixed(0) + "g"
+                    font.pixelSize: Theme.fontSizeSmall
+                    color: (model.bought || 0) >= model.need ? Theme.primary : Theme.secondary
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                Rectangle { width: 20; height: 20; radius: 10; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
+                    Text { text: "+"; anchors.centerIn: parent; font.pixelSize: 12; color: Theme.textHint }
+                    MouseArea { anchors.fill: parent; onClicked: {
+                        model.bought = (model.bought || 0) + 50
+                    }}
                 }
             }
         }
+    }
+
+    Rectangle {
+        anchors { bottom: parent.bottom; left: parent.left; right: parent.right; bottomMargin: 10 }
+        height: 44
+        radius: Theme.radiusLarge
+        color: model.count > 0 ? Theme.primary : Theme.textHint
+        Text { anchors.centerIn: parent; text: "确认采购 · 一键入库"; font.pixelSize: Theme.fontSizeBody; color: "white" }
+        MouseArea { anchors.fill: parent; onClicked: {
+            if (model.count === 0) return
+            var items = []
+            for (var i = 0; i < model.count; i++) {
+                items.push({ ingredientId: model.get(i).ingredientId, bought: model.get(i).bought || 0 })
+            }
+            purchaseService.confirmPurchase(familyId, session.userId, items)
+            navStack.pop()
+        } }
     }
 }

@@ -63,6 +63,11 @@ set(PROJECT_SOURCES
     src/core/menu_service.cpp
     src/core/purchase_service.h
     src/core/purchase_service.cpp
+    src/data/inventory_entity.h
+    src/data/inventory_repository.h
+    src/data/inventory_repository.cpp
+    src/core/fridge_service.h
+    src/core/fridge_service.cpp
 
     src/data/base_repository.h
     src/data/database_manager.h

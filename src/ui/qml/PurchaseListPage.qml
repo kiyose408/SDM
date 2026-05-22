@@ -5,7 +5,6 @@ import SmartDiet.Style 1.0
 Page {
     id: root
     title: "采购清单"
-
     property string familyId: ""
     property string today: ""
 
@@ -27,59 +26,67 @@ Page {
 
     ListModel { id: model }
 
-    Column {
-        anchors { fill: parent; topMargin: Theme.spacingMedium; leftMargin: Theme.spacingMedium; rightMargin: Theme.spacingMedium }
-        spacing: Theme.spacingMedium
+    Item {
+        anchors { fill: parent; margins: Theme.spacingMedium }
 
         Row {
             spacing: Theme.spacingSmall
             Icon { name: "shopping_basket"; size: 24; color: Theme.primary; anchors.verticalCenter: parent.verticalCenter }
-            Text { text: "今日采购清单 · " + today; font.pixelSize: Theme.fontSizeTitle; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
+            Text { text: "今日采购 · " + today; font.pixelSize: Theme.fontSizeTitle; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
         }
 
-        Repeater {
-            model: ListModel { id: grouped; Component.onCompleted: {} }
+        Text {
+            anchors { top: parent.top; topMargin: 40; horizontalCenter: parent.horizontalCenter }
+            visible: model.count === 0
+            text: "暂无菜单 — 请先生成全天菜单"
+            font.pixelSize: Theme.fontSizeBody
+            color: Theme.textHint
         }
 
         ListView {
-            width: parent.width
-            height: parent.height - 60
+            anchors { top: parent.top; topMargin: 44; left: parent.left; right: parent.right; bottom: parent.bottom }
             spacing: Theme.spacingSmall
             model: model
             delegate: Rectangle {
-                width: parent.width
-                height: 44
+                width: ListView.view.width
+                height: 40
                 radius: Theme.radiusSmall
                 color: Theme.bgCard
                 border { width: 1; color: Theme.borderLight }
                 Row {
                     anchors { left: parent.left; leftMargin: 12; verticalCenter: parent.verticalCenter }
                     spacing: Theme.spacingSmall
-                    Text { text: "●"; font.pixelSize: 8; color: catColor(model.cat); anchors.verticalCenter: parent.verticalCenter }
-                    Text { text: model.name; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
-                    Text { text: model.amount; font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint; anchors.verticalCenter: parent.verticalCenter }
+                    Text {
+                        text: "●"
+                        font.pixelSize: 8
+                        color: {
+                            switch(model.cat) {
+                                case "meat":      return "#D32F2F"
+                                case "seafood":   return "#1976D2"
+                                case "vegetable": return "#388E3C"
+                                case "staple":    return "#F57C00"
+                                case "dairy":     return "#7B1FA2"
+                                case "condiment": return "#757575"
+                                default:          return "#999999"
+                            }
+                        }
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    Text {
+                        text: model.name
+                        font.pixelSize: Theme.fontSizeBody
+                        color: Theme.textPrimary
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    Item { width: 1; height: 1 }
+                    Text {
+                        text: model.amount
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: Theme.textHint
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
                 }
             }
-        }
-
-        Text {
-            visible: model.count === 0
-            text: "暂无菜单 — 请先生成"
-            font.pixelSize: Theme.fontSizeBody
-            color: Theme.textHint
-            anchors.centerIn: parent
-        }
-    }
-
-    function catColor(cat) {
-        switch(cat) {
-            case "meat":      return "#D32F2F"
-            case "seafood":   return "#1976D2"
-            case "vegetable": return "#388E3C"
-            case "staple":    return "#F57C00"
-            case "dairy":     return "#7B1FA2"
-            case "condiment": return "#757575"
-            default:          return "#999999"
         }
     }
 }

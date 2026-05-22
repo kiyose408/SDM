@@ -26,8 +26,11 @@ InventoryBatch InventoryBatchRepository::mapRow(const QSqlQuery &query) {
     b.version          = OrmHelper::readInt(query, QStringLiteral("version"));
     b.created_at       = OrmHelper::readString(query, QStringLiteral("created_at"));
     b.updated_at       = OrmHelper::readString(query, QStringLiteral("updated_at"));
-    b.ingredient_name  = OrmHelper::readString(query, QStringLiteral("ingredient_name"));
-    b.ingredient_category = OrmHelper::readString(query, QStringLiteral("ingredient_category"));
+    // JOIN 字段仅在 getFamilyInventory 查询中存在
+    if (query.record().indexOf(QStringLiteral("ingredient_name")) >= 0)
+        b.ingredient_name = OrmHelper::readString(query, QStringLiteral("ingredient_name"));
+    if (query.record().indexOf(QStringLiteral("ingredient_category")) >= 0)
+        b.ingredient_category = OrmHelper::readString(query, QStringLiteral("ingredient_category"));
     return b;
 }
 
@@ -107,7 +110,7 @@ bool InventoryBatchRepository::updateWithVersion(const InventoryBatch &entity, i
 QList<InventoryBatch> InventoryBatchRepository::getByFamilyAndIngredient(const QString &familyId, const QString &ingredientId) {
     QList<InventoryBatch> list;
     QSqlQuery q(db_);
-    q.prepare("SELECT * FROM inventory_batches WHERE family_id=:fid AND ingredient_id=:iid AND is_deleted=0 ORDER BY expiry_date ASC");
+    q.prepare("SELECT id, family_id, ingredient_id, batch_quantity, unit, expiry_date, purchase_date, source, added_by, is_deleted, version, created_at, updated_at FROM inventory_batches WHERE family_id=:fid AND ingredient_id=:iid AND is_deleted=0 ORDER BY expiry_date ASC");
     q.bindValue(":fid", familyId);
     q.bindValue(":iid", ingredientId);
     if (q.exec()) while (q.next()) list.append(mapRow(q));

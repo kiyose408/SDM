@@ -20,6 +20,7 @@ Page {
         var items = fridgeService.getStock(familyId)
         for (var i = 0; i < items.length; i++) {
             var item = items[i]
+            if (item.quantity <= 0) continue
             if (filterCat !== "all" && item.category !== filterCat) continue
             var days = 0
             if (item.purchaseDate) {

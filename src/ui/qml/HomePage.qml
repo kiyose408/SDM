@@ -69,10 +69,10 @@ Page {
     function sumModel(model) {
         for (var i = 0; i < model.count; i++) {
             var item = model.get(i)
-            totalCal  += (item.calPer100 || 0)
-            totalPro  += (item.proPer100 || 0)
-            totalCarb += (item.carbPer100 || 0)
-            totalFat  += (item.fatPer100 || 0)
+            totalCal  += (item.calPerServing || 0)
+            totalPro  += (item.proPerServing || 0)
+            totalCarb += (item.carbPerServing || 0)
+            totalFat  += (item.fatPerServing || 0)
         }
     }
 
@@ -329,7 +329,7 @@ Page {
             anchors { fill: parent; margins: 12 }
             spacing: 6
             Text { text: model.name; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; elide: Text.ElideRight; width: parent.width }
-            Text { text: model.calPer100.toFixed(0) + " kcal/100g"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint }
+            Text { text: model.calPerServing.toFixed(0) + " kcal/份"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint }
             Row {
                 spacing: 4
                 Text { text: "份数:"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint; anchors.verticalCenter: parent.verticalCenter }
@@ -373,4 +373,17 @@ Page {
         }
     }
 
+    // FAB 采购清单
+    Rectangle {
+        anchors { bottom: parent.bottom; bottomMargin: 80; right: parent.right; rightMargin: 20 }
+        width: 52
+        height: 52
+        radius: 26
+        color: Theme.primary
+        Icon { name: "shopping_basket"; size: 24; color: "white"; anchors.centerIn: parent }
+        MouseArea { anchors.fill: parent; onClicked: {
+            var c = Qt.createComponent("qrc:/qml/PurchaseListPage.qml")
+            if (c.status === Component.Ready) navStack.push(c.createObject(navStack))
+        }}
+    }
 }

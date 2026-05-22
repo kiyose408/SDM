@@ -28,10 +28,10 @@ Page {
         tagLabel.text = tagNames.length > 0 ? tagNames.join(" · ") : "暂无标签"
         descLabel.text = data.description || ""
         timeLabel.text = "烹饪时间: " + (data.cookingTime || 0) + " min | " + (data.servings || 2) + " 人份"
-        calLabel.text = "热量: " + (data.calPer100 || 0).toFixed(0) + " kcal/100g (总计 " + (data.totalCalories || 0).toFixed(0) + " kcal)"
-        proLabel.text = "蛋白质: " + (data.proPer100 || 0).toFixed(1) + " g/100g"
-        carbLabel.text = "碳水: " + (data.carbPer100 || 0).toFixed(1) + " g/100g"
-        fatLabel.text = "脂肪: " + (data.fatPer100 || 0).toFixed(1) + " g/100g"
+        calLabel.text = "热量: " + (data.calPerServing || 0).toFixed(0) + " kcal/份 (总计 " + (data.totalCalories || 0).toFixed(0) + " kcal)"
+        proLabel.text = "蛋白质: " + (data.proPerServing || 0).toFixed(1) + " g/份"
+        carbLabel.text = "碳水: " + (data.carbPerServing || 0).toFixed(1) + " g/份"
+        fatLabel.text = "脂肪: " + (data.fatPerServing || 0).toFixed(1) + " g/份"
         var ings = recipeService.getIngredients(recipeId)
         for (var i = 0; i < ings.length; i++) ingModel.append(ings[i])
     }

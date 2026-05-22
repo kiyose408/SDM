@@ -41,19 +41,21 @@ QVariantMap MenuService::getTodayMenu(const QString &familyId, const QString &da
             for (const auto &mi : mItems) {
                 auto recipe = recipeRepo_->getById(mi.recipe_id);
                 if (recipe.has_value()) {
-                    // 份数倍率
+                    // 份数倍率：sv = 当前份数 / 默认份数
                     double sv = mi.servings_override > 0 ? mi.servings_override / 10.0 : 1.0;
                     double defSv = recipe->servings > 0 ? recipe->servings : 2.0;
-                    double ratio = sv / (double)defSv;
+                    double ratio = sv / defSv;
 
                     QVariantMap item;
                     item[QStringLiteral("itemId")]       = mi.id;
                     item[QStringLiteral("recipeId")]     = mi.recipe_id;
                     item[QStringLiteral("name")]         = recipe->name;
-                    item[QStringLiteral("calPer100")]    = recipe->total_calories * ratio;
-                    item[QStringLiteral("proPer100")]    = recipe->total_protein  * ratio;
-                    item[QStringLiteral("carbPer100")]   = recipe->total_carbs    * ratio;
-                    item[QStringLiteral("fatPer100")]    = recipe->total_fat      * ratio;
+                    // 实际摄入 = 每份营养 × 当前份数
+                    double perSv = defSv > 0 ? 1.0 / defSv : 0.5;
+                    item[QStringLiteral("calPerServing")]    = recipe->total_calories * perSv * sv;
+                    item[QStringLiteral("proPerServing")]    = recipe->total_protein  * perSv * sv;
+                    item[QStringLiteral("carbPerServing")]   = recipe->total_carbs    * perSv * sv;
+                    item[QStringLiteral("fatPerServing")]    = recipe->total_fat      * perSv * sv;
                     item[QStringLiteral("cookingTime")]   = recipe->cooking_time;
                     item[QStringLiteral("isLocked")]       = mi.is_locked;
                     item[QStringLiteral("status")]         = mi.status;
@@ -336,7 +338,7 @@ QVariantMap MenuService::getNutritionSummary(const QString &familyId, const QStr
             // 每道菜贡献 = 整份营养值 × 份数倍率
             double sv = mi.servings_override > 0 ? mi.servings_override / 10.0 : 1.0;
             double defSv = recipe->servings > 0 ? recipe->servings : 2.0;
-            double ratio = sv / (double)defSv;
+            double ratio = sv / defSv;
             curCal  += recipe->total_calories * ratio;
             curPro  += recipe->total_protein  * ratio;
             curCarb += recipe->total_carbs    * ratio;

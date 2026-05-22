@@ -26,11 +26,12 @@ QVariantMap RecipeService::toMap(const Recipe &r) const {
     m[QStringLiteral("servings")] = r.servings; m[QStringLiteral("mealType")] = r.meal_type;
     m[QStringLiteral("totalCalories")] = r.total_calories; m[QStringLiteral("totalProtein")] = r.total_protein;
     m[QStringLiteral("totalCarbs")] = r.total_carbs; m[QStringLiteral("totalFat")] = r.total_fat;
-    // 每 100g 归一化值
-    m[QStringLiteral("calPer100")]  = totalWeight > 0 ? r.total_calories / totalWeight * 100 : 0;
-    m[QStringLiteral("proPer100")]  = totalWeight > 0 ? r.total_protein  / totalWeight * 100 : 0;
-    m[QStringLiteral("carbPer100")] = totalWeight > 0 ? r.total_carbs    / totalWeight * 100 : 0;
-    m[QStringLiteral("fatPer100")]  = totalWeight > 0 ? r.total_fat      / totalWeight * 100 : 0;
+    // 每份营养（1 人份）
+    double sv = r.servings > 0 ? r.servings : 2.0;
+    m[QStringLiteral("calPerServing")]  = r.total_calories / sv;
+    m[QStringLiteral("proPerServing")]  = r.total_protein  / sv;
+    m[QStringLiteral("carbPerServing")] = r.total_carbs    / sv;
+    m[QStringLiteral("fatPerServing")]  = r.total_fat      / sv;
 
     // 标签 ID 列表
     QVariantList tagIds;

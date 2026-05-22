@@ -61,6 +61,8 @@ set(PROJECT_SOURCES
     src/core/tag_service.cpp
     src/core/menu_service.h
     src/core/menu_service.cpp
+    src/core/purchase_service.h
+    src/core/purchase_service.cpp
 
     src/data/base_repository.h
     src/data/database_manager.h

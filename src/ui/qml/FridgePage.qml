@@ -6,20 +6,21 @@ Page {
     id: root
     title: "冰箱"
     property string familyId: ""
+    property string filterCat: "all"
 
     background: Rectangle { color: Theme.bgPage }
 
     Component.onCompleted: { loadFridge() }
     onVisibleChanged: { if (visible) loadFridge() }
 
-    function loadFridge() {
+    function refresh() {
         var fams = familyService.getUserFamilies(session.userId)
         if (fams.length > 0) familyId = fams[0].familyId
         model.clear()
         var items = fridgeService.getStock(familyId)
         for (var i = 0; i < items.length; i++) {
             var item = items[i]
-            // 计算入库天数
+            if (filterCat !== "all" && item.category !== filterCat) continue
             var days = 0
             if (item.purchaseDate) {
                 var pd = new Date(item.purchaseDate)
@@ -30,6 +31,8 @@ Page {
             model.append(item)
         }
     }
+
+    function loadFridge() { refresh() }
 
     // 入库天数 → 颜色
     function ageColor(days) {
@@ -56,9 +59,31 @@ Page {
         color: Theme.textHint
     }
 
+    // 筛选标签栏
+    Row {
+        id: filterBar
+        anchors { top: parent.top; topMargin: 50; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium }
+        spacing: 6
+        Repeater {
+            model: [{ cat: "all", label: "全部" },{ cat: "meat", label: "肉类" },{ cat: "seafood", label: "水产" },{ cat: "vegetable", label: "蔬菜" },{ cat: "staple", label: "主食" },{ cat: "dairy", label: "乳制品" },{ cat: "condiment", label: "调味料" }]
+            delegate: Rectangle {
+                width: 56; height: 28; radius: 14
+                color: filterCat === modelData.cat ? Theme.primary : Theme.bgCard
+                border { width: 1; color: Theme.borderLight }
+                Text {
+                    anchors.centerIn: parent
+                    text: modelData.label
+                    font.pixelSize: Theme.fontSizeSmall
+                    color: filterCat === modelData.cat ? "white" : Theme.textPrimary
+                }
+                MouseArea { anchors.fill: parent; onClicked: { filterCat = modelData.cat; refresh() } }
+            }
+        }
+    }
+
     GridView {
         id: grid
-        anchors { top: parent.top; topMargin: 50; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium; bottom: parent.bottom }
+        anchors { top: filterBar.bottom; topMargin: 8; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium; bottom: parent.bottom }
         cellWidth: (grid.width - Theme.spacingSmall * 2) / 3
         cellHeight: 76
         model: model

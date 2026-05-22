@@ -45,12 +45,18 @@ Page {
 
     ListModel { id: model }
 
-    Row {
+    Item {
+        id: titleBar
         anchors { top: parent.top; topMargin: Theme.spacingMedium; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium }
-        spacing: Theme.spacingSmall
-        Icon { name: "kitchen"; size: 24; color: Theme.primary; anchors.verticalCenter: parent.verticalCenter }
-        Text { text: "冰箱 · " + model.count + " 项"; font.pixelSize: Theme.fontSizeTitle; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
-        // 校准按钮
+        height: 28
+
+        Row {
+            anchors { left: parent.left; verticalCenter: parent.verticalCenter }
+            spacing: Theme.spacingSmall
+            Icon { name: "kitchen"; size: 24; color: Theme.primary; anchors.verticalCenter: parent.verticalCenter }
+            Text { text: "冰箱 · " + model.count + " 项"; font.pixelSize: Theme.fontSizeTitle; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
+        }
+
         Rectangle {
             anchors { right: parent.right; verticalCenter: parent.verticalCenter }
             width: 66; height: 28; radius: 14
@@ -73,7 +79,7 @@ Page {
     // 筛选标签栏
     Row {
         id: filterBar
-        anchors { top: parent.top; topMargin: 50; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium }
+        anchors { top: titleBar.bottom; topMargin: 8; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium }
         spacing: 6
         Repeater {
             model: [{ cat: "all", label: "全部" },{ cat: "meat", label: "肉类" },{ cat: "seafood", label: "水产" },{ cat: "vegetable", label: "蔬菜" },{ cat: "staple", label: "主食" },{ cat: "dairy", label: "乳制品" },{ cat: "condiment", label: "调味料" }]

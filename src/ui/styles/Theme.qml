@@ -18,6 +18,8 @@ QtObject {
     readonly property color danger:       "#E86B6B"   // 豆沙红（预警/错误）
     readonly property color accent:       "#F9D07B"   // 暖杏黄
     readonly property color info:         "#72B5E4"   // 浅湖蓝
+    readonly property color success:      "#64C288"   // 成功绿
+    readonly property color warning:      "#F9D07B"   // 警示黄
     readonly property color textPrimary:  "#333333"   // 主文字深灰
     readonly property color textHint:     "#999999"   // 辅助文字浅灰
     readonly property color bgPage:       "#F5F5F5"   // 页面背景

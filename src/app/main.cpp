@@ -21,6 +21,7 @@
 #include "core/menu_service.h"
 #include "core/purchase_service.h"
 #include "core/fridge_service.h"
+#include "core/consumption_service.h"
 #include "data/inventory_repository.h"
 #include "data/database_manager.h"
 
@@ -75,6 +76,7 @@ int main(int argc, char *argv[])
     auto *purchaseService   = new smart_diet::PurchaseService(dailyMenuRepo, menuItemRepo, recipeRepo, recipeIngRepo, ingredientRepo, &app);
     auto *invBatchRepo        = new smart_diet::InventoryBatchRepository(smart_diet::DatabaseManager::instance().database(), &app);
     auto *fridgeService       = new smart_diet::FridgeService(invBatchRepo, ingredientRepo, &app);
+    auto *consumptionService  = new smart_diet::ConsumptionService(menuItemRepo, recipeRepo, recipeIngRepo, ingredientRepo, invBatchRepo, &app);
 
 
     QObject::connect(authService, &smart_diet::AuthService::userLoggedIn,
@@ -91,6 +93,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("menuService"), menuService);
     engine.rootContext()->setContextProperty(QStringLiteral("purchaseService"), purchaseService);
     engine.rootContext()->setContextProperty(QStringLiteral("fridgeService"), fridgeService);
+    engine.rootContext()->setContextProperty(QStringLiteral("consumptionService"), consumptionService);
 
 
     // ================================================================

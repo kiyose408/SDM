@@ -68,6 +68,8 @@ set(PROJECT_SOURCES
     src/data/inventory_repository.cpp
     src/core/fridge_service.h
     src/core/fridge_service.cpp
+    src/core/consumption_service.h
+    src/core/consumption_service.cpp
 
     src/data/base_repository.h
     src/data/database_manager.h

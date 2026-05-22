@@ -109,6 +109,56 @@ bool FridgeService::deductByFifo(const QString &familyId, const QString &ingredi
     return remaining <= 0;
 }
 
+bool FridgeService::calibrateStock(const QString &familyId, const QString &ingredientId,
+                                     double newTotal, const QString &operatorId) {
+    double currentTotal = 0;
+    auto batches = ibRepo_->getByFamilyAndIngredient(familyId, ingredientId);
+    for (const auto &b : batches) currentTotal += b.batch_quantity;
+
+    if (qAbs(currentTotal - newTotal) < 0.001) return true;
+
+    auto ing = ingRepo_->getById(ingredientId);
+    QString unit = ing.has_value() && !ing->unit.isEmpty() ? ing->unit : QStringLiteral("g");
+
+    // 清空所有旧批次
+    for (const auto &b : batches) ibRepo_->softDelete(b.id);
+
+    // 新建校准批次
+    if (newTotal > 0) {
+        InventoryBatch nb;
+        nb.id = generateUuid();
+        nb.family_id       = familyId;
+        nb.ingredient_id   = ingredientId;
+        nb.batch_quantity   = newTotal;
+        nb.unit            = unit;
+        nb.purchase_date   = QDateTime::currentDateTimeUtc().toString(Qt::ISODate).left(10);
+        nb.source          = QStringLiteral("calibration");
+        nb.added_by        = operatorId;
+        nb.created_at      = utcNow();
+        nb.updated_at      = nb.created_at;
+        ibRepo_->save(nb);
+    }
+
+    // 记录日志
+    QSqlQuery lq(DatabaseManager::instance().database());
+    lq.prepare("INSERT INTO inventory_logs (id, family_id, batch_id, ingredient_id, operation, quantity_change, quantity_before, quantity_after, reason, operator_id, created_at, updated_at) VALUES (:id,:fid,:bid,:iid,:op,:chg,:bef,:aft,:rsn,:oid,:ca,:ua)");
+    lq.bindValue(":id",  generateUuid());
+    lq.bindValue(":fid", familyId);
+    lq.bindValue(":bid", QString());
+    lq.bindValue(":iid", ingredientId);
+    lq.bindValue(":op",  "calibrate");
+    lq.bindValue(":chg", newTotal - currentTotal);
+    lq.bindValue(":bef", currentTotal);
+    lq.bindValue(":aft", newTotal);
+    lq.bindValue(":rsn", QStringLiteral("manual_calibration"));
+    lq.bindValue(":oid", operatorId);
+    lq.bindValue(":ca",  utcNow());
+    lq.bindValue(":ua",  utcNow());
+    lq.exec();
+
+    return true;
+}
+
 int FridgeService::importFromPurchase(const QString &familyId, const QString &addedBy) {
     int count = 0;
     QSqlQuery q(DatabaseManager::instance().database());

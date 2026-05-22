@@ -69,6 +69,7 @@ Page {
     function sumModel(model) {
         for (var i = 0; i < model.count; i++) {
             var item = model.get(i)
+            if (item.status === "completed") continue
             totalCal  += (item.calPer100 || 0)
             totalPro  += (item.proPer100 || 0)
             totalCarb += (item.carbPer100 || 0)
@@ -321,13 +322,14 @@ Page {
     component DishCard: Rectangle {
         property string mt: ""
         width: 160
-        height: 110
+        height: 135
         radius: 16
-        color: Theme.bgCard
+        color: model.status === "completed" ? "#F5F5F5" : Theme.bgCard
+        opacity: model.status === "completed" ? 0.6 : 1.0
         border { width: 1; color: Theme.borderLight }
         Column {
             anchors { fill: parent; margins: 12 }
-            spacing: 6
+            spacing: 4
             Text { text: model.name; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; elide: Text.ElideRight; width: parent.width }
             Text { text: model.calPer100.toFixed(0) + " kcal"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textHint }
             Row {
@@ -359,15 +361,34 @@ Page {
             }
             Row {
                 spacing: 12
-                Text {
-                    text: model.isLocked ? "🔒" : "🔓"
-                    font.pixelSize: 16
+                Text { text: model.isLocked ? "🔒" : "🔓"; font.pixelSize: 16
                     MouseArea { anchors.fill: parent; onClicked: lock(mt, model.recipeId) }
                 }
-                Text {
-                    text: "🔄"
-                    font.pixelSize: 16
+                Text { text: "🔄"; font.pixelSize: 16
                     MouseArea { anchors.fill: parent; onClicked: swap(mt, model.recipeId) }
+                }
+            }
+            // 消耗按钮
+            Rectangle {
+                width: parent.width; height: 22; radius: 6
+                color: model.status === "completed" ? Theme.success : (model.status === "pending" ? Theme.primary : Theme.textHint)
+                visible: true
+                Text {
+                    anchors.centerIn: parent
+                    text: model.status === "completed" ? "✅ 已消耗" : "📌 标记完成"
+                    font.pixelSize: 10
+                    color: "white"
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: model.status !== "completed"
+                    onClicked: {
+                        var fams = familyService.getUserFamilies(session.userId)
+                        var fid = fams.length > 0 ? fams[0].familyId : ""
+                        var sv = model.servingsOverride > 0 ? model.servingsOverride : 1.0
+                        consumptionService.consumeRecipe(model.itemId, fid, sv, session.userId)
+                        loadMenu()
+                    }
                 }
             }
         }

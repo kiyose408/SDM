@@ -110,6 +110,11 @@ Page {
                             model.bought = (model.bought || 0) + 50
                         }}
                     }
+                    // 一键足量
+                    Rectangle { width: 36; height: 22; radius: 6; color: (model.bought || 0) >= model.need ? Theme.primary : Theme.info
+                        Text { anchors.centerIn: parent; text: (model.bought || 0) >= model.need ? "✓" : "足量"; font.pixelSize: 10; color: "white" }
+                        MouseArea { anchors.fill: parent; onClicked: { model.bought = model.need } }
+                    }
                 }
             }
         }

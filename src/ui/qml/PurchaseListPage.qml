@@ -166,63 +166,46 @@ Page {
 
         background: Rectangle { color: "#FFFDF5"; radius: Theme.radiusMedium; border { width: 1; color: Theme.borderLight } }
 
-        contentItem: Column {
-            anchors { fill: parent; topMargin: 12; leftMargin: 12; rightMargin: 12 }
-            spacing: 4
+        contentItem: Item {
+            Column {
+                id: col
+                anchors { fill: parent; topMargin: 12; leftMargin: 12; rightMargin: 12; bottomMargin: 8 }
+                spacing: 4
 
-            // 标题
-            Text {
-                text: "📋 采购小票"
-                font.pixelSize: Theme.fontSizeTitle; font.bold: true
-                color: Theme.textPrimary
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-            Rectangle { width: parent.width; height: 1; color: Theme.textHint; opacity: 0.3 }
+                Text {
+                    text: "📋 采购小票"
+                    font.pixelSize: Theme.fontSizeTitle; font.bold: true
+                    color: Theme.textPrimary
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+                Rectangle { width: parent.width; height: 1; color: Theme.textHint; opacity: 0.3 }
 
-            // 食材列表
-            ListView {
-                width: parent.width
-                height: receiptModel.count * 28
-                model: receiptModel
-                interactive: false
-                delegate: Item {
-                    width: parent.width; height: 24
-                    Text {
-                        id: qtyText
-                        text: model.qty + "g"
-                        anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-                        font.pixelSize: Theme.fontSizeBody
-                        color: Theme.textPrimary
-                    }
-                    Text {
-                        id: nameText
-                        text: model.name
-                        anchors { left: parent.left; verticalCenter: parent.verticalCenter }
-                        font.pixelSize: Theme.fontSizeBody
-                        color: Theme.textPrimary
-                    }
-                    Text {
-                        anchors { left: nameText.right; right: qtyText.left; leftMargin: 4; rightMargin: 4; verticalCenter: parent.verticalCenter }
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.textHint
-                        elide: Text.ElideNone
-                        maximumLineCount: 1
-                        // 根据可用空间计算点数
-                        text: {
-                            var maxDots = Math.max(0, Math.floor(width / 5))
-                            var s = ""
-                            for (var j = 0; j < maxDots; j++) s += "·"
-                            return s
+                ListView {
+                    width: parent.width
+                    height: receiptModel.count * 28
+                    model: receiptModel
+                    interactive: false
+                    delegate: Item {
+                        width: parent.width; height: 24
+                        Text {
+                            text: model.name + "  " + "··············································" + "  " + model.qty + "g"
+                            font.pixelSize: Theme.fontSizeBody
+                            color: Theme.textPrimary
+                            anchors.fill: parent
+                            verticalAlignment: Text.AlignVCenter
+                            elide: Text.ElideNone
+                            clip: true
                         }
                     }
                 }
+
+                Rectangle { width: parent.width; height: 1; color: Theme.textHint; opacity: 0.3 }
+                Item { height: 4; width: 1 }
             }
 
-            Rectangle { width: parent.width; height: 1; color: Theme.textHint; opacity: 0.3 }
-
-            // 按钮行
+            // 按钮固定在底部
             Row {
-                anchors.horizontalCenter: parent.horizontalCenter
+                anchors { bottom: parent.bottom; bottomMargin: 8; horizontalCenter: parent.horizontalCenter }
                 spacing: 12
                 Rectangle { width: 80; height: 34; radius: Theme.radiusSmall; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
                     Text { anchors.centerIn: parent; text: "取消"; font.pixelSize: Theme.fontSizeBody; color: Theme.textHint }

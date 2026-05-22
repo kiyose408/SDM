@@ -140,12 +140,109 @@ Page {
             Text { anchors.centerIn: parent; text: "确认采购 · 一键入库"; font.pixelSize: Theme.fontSizeBody; color: "white" }
             MouseArea { anchors.fill: parent; onClicked: {
                 if (model.count === 0) return
-                var items = []
-                for (var i = 0; i < model.count; i++)
-                    items.push({ ingredientId: model.get(i).ingredientId, bought: model.get(i).bought || 0 })
-                purchaseService.confirmPurchase(familyId, session.userId, items)
-                navStack.pop()
+                receiptModel.clear()
+                for (var i = 0; i < model.count; i++) {
+                    var item = model.get(i)
+                    if ((item.bought || 0) > 0)
+                        receiptModel.append({ name: item.name, qty: (item.bought || 0).toFixed(0) })
+                }
+                if (receiptModel.count === 0) { navStack.pop(); return }
+                receiptPopup.open()
             }}
+        }
+    }
+
+    ListModel { id: receiptModel }
+
+    // ═══ 小票确认弹窗 ═══
+    Popup {
+        id: receiptPopup
+        width: Math.min(parent.width - 20, 360)
+        height: Math.min(receiptModel.count * 28 + 120, parent.height * 0.7)
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+        modal: true; closePolicy: Popup.CloseOnEscape
+        padding: 0
+
+        background: Rectangle { color: "#FFFDF5"; radius: Theme.radiusMedium; border { width: 1; color: Theme.borderLight } }
+
+        contentItem: Column {
+            anchors { fill: parent; topMargin: 12; leftMargin: 12; rightMargin: 12 }
+            spacing: 4
+
+            // 标题
+            Text {
+                text: "📋 采购小票"
+                font.pixelSize: Theme.fontSizeTitle; font.bold: true
+                color: Theme.textPrimary
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+            Rectangle { width: parent.width; height: 1; color: Theme.textHint; opacity: 0.3 }
+
+            // 食材列表
+            ListView {
+                width: parent.width
+                height: receiptModel.count * 28
+                model: receiptModel
+                interactive: false
+                delegate: Row {
+                    width: parent.width; height: 24
+                    spacing: 4
+                    Text {
+                        text: model.name
+                        font.pixelSize: Theme.fontSizeBody
+                        color: Theme.textPrimary
+                        elide: Text.ElideRight
+                        width: (parent.width - 50) / 2
+                    }
+                    Text {
+                        // 生成连接点
+                        text: {
+                            var dots = ""
+                            for (var j = 0; j < 30; j++) dots += "·"
+                            return dots
+                        }
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: Theme.textHint
+                        anchors.verticalCenter: parent.verticalCenter
+                        elide: Text.ElideNone
+                        clip: true
+                    }
+                    Text {
+                        text: model.qty + "g"
+                        font.pixelSize: Theme.fontSizeBody
+                        color: Theme.textPrimary
+                        width: 50
+                        horizontalAlignment: Text.AlignRight
+                    }
+                }
+            }
+
+            Rectangle { width: parent.width; height: 1; color: Theme.textHint; opacity: 0.3 }
+
+            // 按钮行
+            Row {
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: 12
+                Rectangle { width: 80; height: 34; radius: Theme.radiusSmall; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
+                    Text { anchors.centerIn: parent; text: "取消"; font.pixelSize: Theme.fontSizeBody; color: Theme.textHint }
+                    MouseArea { anchors.fill: parent; onClicked: receiptPopup.close() }
+                }
+                Rectangle { width: 80; height: 34; radius: Theme.radiusSmall; color: Theme.primary
+                    Text { anchors.centerIn: parent; text: "确认采购"; font.pixelSize: Theme.fontSizeBody; color: "white" }
+                    MouseArea { anchors.fill: parent; onClicked: {
+                        var items = []
+                        for (var i = 0; i < model.count; i++) {
+                            var item = model.get(i)
+                            if ((item.bought || 0) > 0)
+                                items.push({ ingredientId: item.ingredientId, bought: item.bought })
+                        }
+                        purchaseService.confirmPurchase(familyId, session.userId, items)
+                        receiptPopup.close()
+                        navStack.pop()
+                    }}
+                }
+            }
         }
     }
 }

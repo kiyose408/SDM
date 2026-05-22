@@ -14,36 +14,34 @@ FridgeService::FridgeService(InventoryBatchRepository *ib, IngredientRepository 
     : BaseService(parent), ibRepo_(ib), ingRepo_(ir) {}
 
 QVariantList FridgeService::getStock(const QString &familyId) {
-    QMap<QString, double> aggQty;
-    QMap<QString, QString> aggUnit, aggDate, aggName, aggCat;
+    // 按食材聚合（同食材多批次合并）
+    struct AggEntry {
+        double qty = 0;
+        QString unit;
+        QString earliestDate; // 最早的入库日期
+    };
+    QMap<QString, AggEntry> agg;
+    QMap<QString, QPair<QString, QString>> meta; // ingredientId → (name, category)
 
     auto batches = ibRepo_->getFamilyInventory(familyId);
     for (const auto &b : batches) {
-        aggQty[b.ingredient_id] += b.batch_quantity;
-        if (aggUnit[b.ingredient_id].isEmpty()) aggUnit[b.ingredient_id] = b.unit;
-        if (aggDate[b.ingredient_id].isEmpty() || b.purchase_date < aggDate[b.ingredient_id])
-            aggDate[b.ingredient_id] = b.purchase_date;
-        if (!b.ingredient_name.isEmpty()) aggName[b.ingredient_id] = b.ingredient_name;
-        if (!b.ingredient_category.isEmpty()) aggCat[b.ingredient_id] = b.ingredient_category;
+        agg[b.ingredient_id].qty += b.batch_quantity;
+        agg[b.ingredient_id].unit = b.unit;
+        if (agg[b.ingredient_id].earliestDate.isEmpty() || b.purchase_date < agg[b.ingredient_id].earliestDate)
+            agg[b.ingredient_id].earliestDate = b.purchase_date;
+        meta[b.ingredient_id] = {b.ingredient_name, b.ingredient_category};
     }
 
     QVariantList list;
-    for (auto it = aggQty.begin(); it != aggQty.end(); ++it) {
-        const QString &iid = it.key();
-        QString iname = aggName.value(iid);
-        QString icat  = aggCat.value(iid);
-        if (iname.isEmpty()) {
-            auto ing = ingRepo_->getById(iid);
-            iname = ing.has_value() ? ing->name : QStringLiteral("未知食材");
-            icat  = ing.has_value() ? ing->category : QStringLiteral("other");
-        }
+    for (auto it = agg.begin(); it != agg.end(); ++it) {
+        auto m = meta.value(it.key());
         QVariantMap item;
-        item[QStringLiteral("ingredientId")] = iid;
-        item[QStringLiteral("name")]         = iname;
-        item[QStringLiteral("category")]     = icat;
-        item[QStringLiteral("quantity")]     = it.value();
-        item[QStringLiteral("unit")]         = aggUnit.value(iid);
-        item[QStringLiteral("purchaseDate")] = aggDate.value(iid);
+        item[QStringLiteral("ingredientId")] = it.key();
+        item[QStringLiteral("name")]         = m.first;
+        item[QStringLiteral("category")]     = m.second;
+        item[QStringLiteral("quantity")]     = it->qty;
+        item[QStringLiteral("unit")]         = it->unit;
+        item[QStringLiteral("purchaseDate")] = it->earliestDate;
         list.append(item);
     }
     return list;
@@ -109,56 +107,6 @@ bool FridgeService::deductByFifo(const QString &familyId, const QString &ingredi
         remaining -= take;
     }
     return remaining <= 0;
-}
-
-bool FridgeService::calibrateStock(const QString &familyId, const QString &ingredientId,
-                                     double newTotal, const QString &operatorId) {
-    double currentTotal = 0;
-    auto batches = ibRepo_->getByFamilyAndIngredient(familyId, ingredientId);
-    for (const auto &b : batches) currentTotal += b.batch_quantity;
-
-    if (qAbs(currentTotal - newTotal) < 0.001) return true;
-
-    auto ing = ingRepo_->getById(ingredientId);
-    QString unit = ing.has_value() && !ing->unit.isEmpty() ? ing->unit : QStringLiteral("g");
-
-    // 清空所有旧批次
-    for (const auto &b : batches) ibRepo_->softDelete(b.id);
-
-    // 新建校准批次
-    if (newTotal > 0) {
-        InventoryBatch nb;
-        nb.id = generateUuid();
-        nb.family_id       = familyId;
-        nb.ingredient_id   = ingredientId;
-        nb.batch_quantity   = newTotal;
-        nb.unit            = unit;
-        nb.purchase_date   = QDateTime::currentDateTimeUtc().toString(Qt::ISODate).left(10);
-        nb.source          = QStringLiteral("calibration");
-        nb.added_by        = operatorId;
-        nb.created_at      = utcNow();
-        nb.updated_at      = nb.created_at;
-        ibRepo_->save(nb);
-    }
-
-    // 记录日志
-    QSqlQuery lq(DatabaseManager::instance().database());
-    lq.prepare("INSERT INTO inventory_logs (id, family_id, batch_id, ingredient_id, operation, quantity_change, quantity_before, quantity_after, reason, operator_id, created_at, updated_at) VALUES (:id,:fid,:bid,:iid,:op,:chg,:bef,:aft,:rsn,:oid,:ca,:ua)");
-    lq.bindValue(":id",  generateUuid());
-    lq.bindValue(":fid", familyId);
-    lq.bindValue(":bid", QString());
-    lq.bindValue(":iid", ingredientId);
-    lq.bindValue(":op",  "calibrate");
-    lq.bindValue(":chg", newTotal - currentTotal);
-    lq.bindValue(":bef", currentTotal);
-    lq.bindValue(":aft", newTotal);
-    lq.bindValue(":rsn", QStringLiteral("manual_calibration"));
-    lq.bindValue(":oid", operatorId);
-    lq.bindValue(":ca",  utcNow());
-    lq.bindValue(":ua",  utcNow());
-    lq.exec();
-
-    return true;
 }
 
 int FridgeService::importFromPurchase(const QString &familyId, const QString &addedBy) {

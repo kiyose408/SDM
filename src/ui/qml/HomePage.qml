@@ -146,7 +146,7 @@ Page {
                     var labels = ["热量", "蛋白", "碳水", "脂肪"]
                     var curV   = [totalCal, totalPro, totalCarb, totalFat]
                     var tgtV   = [targetCal, targetPro, targetCarb, targetFat]
-                    var colors = ["#FF9A5A", "#72B5E4", "#F9D07B", "#64C288"]
+                    var colors = ["#64C288", "#72B5E4", "#F9D07B", "#FF9A5A"]
                     var barW = (width - 80) / 18
                     for (var i = 0; i < 4; i++) {
                         var x = 40 + i * barW * 5

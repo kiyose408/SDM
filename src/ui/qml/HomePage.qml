@@ -7,10 +7,10 @@ Page {
     title: "首页"
     property string familyId: ""
     property string today: ""
-    property int dinerCount: 2
-    property int breakfastCount: 3
-    property int lunchCount: 4
-    property int dinnerCount: 4
+    property int dinerCount: 1
+    property int breakfastCount: 1
+    property int lunchCount: 1
+    property int dinnerCount: 1
     property string dietMode: "maintenance"
     background: Rectangle { color: Theme.bgPage }
 
@@ -18,7 +18,17 @@ Page {
         var d = new Date()
         today = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0') + "-" + String(d.getDate()).padStart(2,'0')
         var fams = familyService.getUserFamilies(session.userId)
-        if (fams.length > 0) familyId = fams[0].familyId
+        if (fams.length > 0) {
+            familyId = fams[0].familyId
+            // 家庭人数 = 默认用餐人数 = 默认每餐菜数
+            var members = familyService.getMembers(familyId)
+            if (members && members.length > 0) {
+                dinerCount = members.length
+                breakfastCount = dinerCount
+                lunchCount = dinerCount
+                dinnerCount = dinerCount
+            }
+        }
         loadMenu()
     }
 
@@ -101,9 +111,9 @@ Page {
                 Text { anchors.centerIn: parent; text: "一键生成全天菜单"; font.pixelSize: Theme.fontSizeBody; color: "white" }
                 MouseArea { anchors.fill: parent; onClicked: {
                     if (!familyId) return
-                    gen("breakfast", breakfastCount)
-                    gen("lunch", lunchCount)
-                    gen("dinner", dinnerCount)
+                    if (breakfastCount > 0) gen("breakfast", breakfastCount)
+                    if (lunchCount > 0) gen("lunch", lunchCount)
+                    if (dinnerCount > 0) gen("dinner", dinnerCount)
                 }}
             }
 
@@ -246,7 +256,7 @@ Page {
                 Text { text: "早餐"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
                 Rectangle { width: 20; height: 20; radius: 10; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
                     Text { text: "−"; anchors.centerIn: parent; color: Theme.textHint; font.pixelSize: 14 }
-                    MouseArea { anchors.fill: parent; onClicked: { if (breakfastCount > 1) breakfastCount-- } }
+                    MouseArea { anchors.fill: parent; onClicked: { if (breakfastCount > 0) breakfastCount-- } }
                 }
                 Text { text: breakfastCount + " 道"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
                 Rectangle { width: 20; height: 20; radius: 10; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
@@ -273,7 +283,7 @@ Page {
                 Text { text: "午餐"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
                 Rectangle { width: 20; height: 20; radius: 10; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
                     Text { text: "−"; anchors.centerIn: parent; color: Theme.textHint; font.pixelSize: 14 }
-                    MouseArea { anchors.fill: parent; onClicked: { if (lunchCount > 1) lunchCount-- } }
+                    MouseArea { anchors.fill: parent; onClicked: { if (lunchCount > 0) lunchCount-- } }
                 }
                 Text { text: lunchCount + " 道"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
                 Rectangle { width: 20; height: 20; radius: 10; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
@@ -300,7 +310,7 @@ Page {
                 Text { text: "晚餐"; font.pixelSize: Theme.fontSizeBody; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
                 Rectangle { width: 20; height: 20; radius: 10; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }
                     Text { text: "−"; anchors.centerIn: parent; color: Theme.textHint; font.pixelSize: 14 }
-                    MouseArea { anchors.fill: parent; onClicked: { if (dinnerCount > 1) dinnerCount-- } }
+                    MouseArea { anchors.fill: parent; onClicked: { if (dinnerCount > 0) dinnerCount-- } }
                 }
                 Text { text: dinnerCount + " 道"; font.pixelSize: Theme.fontSizeSmall; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
                 Rectangle { width: 20; height: 20; radius: 10; color: Theme.bgCard; border { width: 1; color: Theme.borderLight }

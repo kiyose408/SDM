@@ -27,10 +27,21 @@ Page {
     ListModel { id: model }
 
     Row {
-        anchors { top: parent.top; topMargin: Theme.spacingMedium; left: parent.left; leftMargin: Theme.spacingMedium }
+        anchors { top: parent.top; topMargin: Theme.spacingMedium; left: parent.left; leftMargin: Theme.spacingMedium; right: parent.right; rightMargin: Theme.spacingMedium }
         spacing: Theme.spacingSmall
         Icon { name: "shopping_basket"; size: 24; color: Theme.primary; anchors.verticalCenter: parent.verticalCenter }
         Text { text: "今日采购 · " + today; font.pixelSize: Theme.fontSizeTitle; color: Theme.textPrimary; anchors.verticalCenter: parent.verticalCenter }
+        // 一键足量
+        Rectangle {
+            anchors.verticalCenter: parent.verticalCenter
+            visible: model.count > 0
+            width: 60; height: 24; radius: 12; color: Theme.info
+            Text { anchors.centerIn: parent; text: "足量"; font.pixelSize: Theme.fontSizeSmall; color: "white" }
+            MouseArea { anchors.fill: parent; onClicked: {
+                for (var i = 0; i < model.count; i++)
+                    model.setProperty(i, "bought", model.get(i).need)
+            }}
+        }
     }
 
     Text {

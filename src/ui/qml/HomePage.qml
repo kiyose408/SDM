@@ -378,7 +378,8 @@ Page {
                 Icon { name: model.isLocked ? "lock" : "lock_open"; size: 16; color: model.isLocked ? Theme.danger : Theme.textHint; anchors.verticalCenter: parent.verticalCenter
                     MouseArea { anchors.fill: parent; onClicked: lock(mt, model.recipeId) }
                 }
-                Icon { name: "refresh"; size: 16; color: Theme.textHint; anchors.verticalCenter: parent.verticalCenter
+                Icon { name: "refresh"; size: 16; color: model.isLocked ? "#DDD" : Theme.textHint; anchors.verticalCenter: parent.verticalCenter
+                    visible: !model.isLocked && model.status !== "completed"
                     MouseArea { anchors.fill: parent; onClicked: swap(mt, model.recipeId) }
                 }
             }
@@ -401,6 +402,8 @@ Page {
                         var fid = fams.length > 0 ? fams[0].familyId : ""
                         var sv = model.servingsOverride > 0 ? model.servingsOverride : 1.0
                         consumptionService.consumeRecipe(model.itemId, fid, sv, session.userId)
+                        // 标记完成后自动锁定，防止误换菜
+                        if (!model.isLocked) lock(mt, model.recipeId)
                         loadMenu()
                     }
                 }

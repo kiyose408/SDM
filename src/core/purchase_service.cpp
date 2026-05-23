@@ -40,6 +40,9 @@ QVariantList PurchaseService::getTodayPurchaseList(const QString &familyId, cons
 
         auto items = miRepo_->getByMenu(menuOpt->id);
         for (const auto &mi : items) {
+            // 跳过已完成的菜品（已消耗过食材，不再纳入采购计算）
+            if (mi.status == QStringLiteral("completed")) continue;
+
             auto recipe = recipeRepo_->getById(mi.recipe_id);
             if (!recipe.has_value()) continue;
 

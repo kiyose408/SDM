@@ -383,29 +383,45 @@ Page {
                     MouseArea { anchors.fill: parent; onClicked: swap(mt, model.recipeId) }
                 }
             }
-            // 消耗按钮
-            Rectangle {
-                width: parent.width; height: 22; radius: 6
-                color: model.status === "completed" ? Theme.success : (model.status === "pending" ? Theme.primary : Theme.textHint)
-                visible: true
-                Text {
-                    anchors.centerIn: parent
-                    text: model.status === "completed" ? "已消耗" : "标记完成"
-                    font.pixelSize: 10
-                    color: "white"
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    enabled: model.status !== "completed"
-                    onClicked: {
-                        var fams = familyService.getUserFamilies(session.userId)
-                        var fid = fams.length > 0 ? fams[0].familyId : ""
-                        var sv = model.servingsOverride > 0 ? model.servingsOverride : 1.0
-                        consumptionService.consumeRecipe(model.itemId, fid, sv, session.userId)
-                        // 标记完成后自动锁定，防止误换菜
-                        if (!model.isLocked) lock(mt, model.recipeId)
-                        loadMenu()
+            // 消耗/撤销按钮
+            Row {
+                width: parent.width
+                spacing: 4
+
+                Rectangle {
+                    width: model.status === "completed" ? parent.width - 38 : parent.width
+                    height: 22; radius: 6
+                    color: model.status === "completed" ? Theme.success : Theme.primary
+                    Text {
+                        anchors.centerIn: parent
+                        text: model.status === "completed" ? "已消耗" : "标记完成"
+                        font.pixelSize: 10; color: "white"
                     }
+                    MouseArea {
+                        anchors.fill: parent
+                        enabled: model.status !== "completed"
+                        onClicked: {
+                            var fams = familyService.getUserFamilies(session.userId)
+                            var fid = fams.length > 0 ? fams[0].familyId : ""
+                            var sv = model.servingsOverride > 0 ? model.servingsOverride : 1.0
+                            consumptionService.consumeRecipe(model.itemId, fid, sv, session.userId)
+                            if (!model.isLocked) lock(mt, model.recipeId)
+                            loadMenu()
+                        }
+                    }
+                }
+
+                // 撤销按钮（仅已完成状态显示）
+                Rectangle {
+                    width: 34; height: 22; radius: 6
+                    color: Theme.danger
+                    visible: model.status === "completed"
+                    Text { anchors.centerIn: parent; text: "↩"; font.pixelSize: 12; color: "white" }
+                    MouseArea { anchors.fill: parent; onClicked: {
+                        consumptionService.undoConsume(model.itemId, session.userId)
+                        if (model.isLocked) lock(mt, model.recipeId)
+                        loadMenu()
+                    }}
                 }
             }
         }

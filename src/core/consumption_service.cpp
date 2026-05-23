@@ -47,7 +47,7 @@ bool ConsumptionService::consumeRecipe(const QString &menuItemId, const QString 
     double ratio = servings / defSv;
 
     QString batchId = generateUuid();
-    QString reason = QStringLiteral("cooking:") + batchId + QStringLiteral(":") + QString::number(servings, 'f', 1);
+    QString reason = QStringLiteral("cooking:") + menuItemId;
     QString now = utcNow();
 
     auto riList = riRepo_->getByRecipe(recipeId);
@@ -117,17 +117,11 @@ bool ConsumptionService::undoConsume(const QString &menuItemId, const QString &o
     auto mi = queryMenuItem(menuItemId);
     if (mi.isEmpty() || mi["status"].toString() != QStringLiteral("completed")) return false;
 
-    QSqlQuery fq(DatabaseManager::instance().database());
-    fq.prepare("SELECT reason FROM inventory_logs WHERE related_menu_id=:mid AND operation='deduct' AND reason LIKE 'cooking:%' ORDER BY created_at DESC LIMIT 1");
-    fq.bindValue(":mid", menuItemId);
-    if (!fq.exec() || !fq.next()) return false;
-
-    QString reason = fq.value(0).toString();
+    QString reason = QStringLiteral("cooking:") + menuItemId;
     QString now = utcNow();
 
     QSqlQuery lq(DatabaseManager::instance().database());
-    lq.prepare("SELECT family_id, batch_id, ingredient_id, quantity_change FROM inventory_logs WHERE related_menu_id=:mid AND reason=:rsn AND operation='deduct'");
-    lq.bindValue(":mid", menuItemId);
+    lq.prepare("SELECT family_id, batch_id, ingredient_id, quantity_change FROM inventory_logs WHERE reason=:rsn AND operation='deduct'");
     lq.bindValue(":rsn", reason);
     if (!lq.exec()) return false;
 
@@ -146,7 +140,7 @@ bool ConsumptionService::undoConsume(const QString &menuItemId, const QString &o
         ibRepo_->update(*batch);
 
         QSqlQuery ulq(DatabaseManager::instance().database());
-        ulq.prepare("INSERT INTO inventory_logs (id, family_id, batch_id, ingredient_id, operation, quantity_change, quantity_before, quantity_after, reason, related_menu_id, operator_id, created_at, updated_at) VALUES (:id,:fid,:bid,:iid,'undo',:chg,:bef,:aft,:rsn,:mid,:oid,:ca,:ua)");
+        ulq.prepare("INSERT INTO inventory_logs (id, family_id, batch_id, ingredient_id, operation, quantity_change, quantity_before, quantity_after, reason, operator_id, created_at, updated_at) VALUES (:id,:fid,:bid,:iid,'undo',:chg,:bef,:aft,:rsn,:oid,:ca,:ua)");
         ulq.bindValue(":id",  generateUuid());
         ulq.bindValue(":fid", famId);
         ulq.bindValue(":bid", batchId);
@@ -155,7 +149,6 @@ bool ConsumptionService::undoConsume(const QString &menuItemId, const QString &o
         ulq.bindValue(":bef", before);
         ulq.bindValue(":aft", batch->batch_quantity);
         ulq.bindValue(":rsn", QStringLiteral("undo:") + reason);
-        ulq.bindValue(":mid", menuItemId);
         ulq.bindValue(":oid", operatorId);
         ulq.bindValue(":ca",  now);
         ulq.bindValue(":ua",  now);
